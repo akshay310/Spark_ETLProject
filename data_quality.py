@@ -42,6 +42,8 @@ def validate_data(df: DataFrame, bad_records_path: str):
     
     # Store bad records in Parquet
     if bad_records_df.count() > 0:
+        print(f"Bad records count: {bad_records_df.count()}")
+        bad_records_df.show(truncate=False)  # Print a sample of bad records
         bad_records_df.write.mode("overwrite").parquet(bad_records_path)
     
     return good_records_df
