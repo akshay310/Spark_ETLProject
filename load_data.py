@@ -13,7 +13,7 @@ def load_data(file_path):
         .option("header", "true") \
         .option("inferSchema", "true") \
         .csv(file_path)
-    
+    print(f"🔹 Total records loaded: {df.count()}")
     return df
 
 if __name__ == "__main__":
