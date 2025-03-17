@@ -1,7 +1,6 @@
-#data_quality.py
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, when
-# import great_expectations as ge
+import great_expectations as ge
 import logging
 import re
 from datetime import datetime
@@ -58,16 +57,19 @@ def validate_and_clean_data(df: DataFrame):
     expected_columns = ["Id", "Title", "review/score", "Price", "review/time", "review/helpfulness"]
     df = df.select(*[c for c in expected_columns if c in df.columns])  # Select required columns
 
-    #greatexpectations
-    # df_ge = ge.dataset.SparkDFDataset(df)
-    # validation_checks = {
-    #     "Id": df_ge.expect_column_values_to_not_be_null("Id"),
-    #     "Title": df_ge.expect_column_values_to_not_be_null("Title"),
-    #     "review/score": df_ge.expect_column_values_to_not_be_null("review/score"),
-    #     "Price": df_ge.expect_column_values_to_be_between("Price", min_value=0),
-    #     "review/time format": df_ge.expect_column_values_to_match_regex("review/time", r"\d+"),
-    #     "review/helpfulness format": df_ge.expect_column_values_to_match_regex("review/helpfulness", r"\d+/\d+")
-    # }
+    # Great Expectations validation
+    df_ge = ge.dataset.SparkDFDataset(df)
+    validation_checks = {
+        "Id": df_ge.expect_column_values_to_not_be_null("Id"),
+        "Title": df_ge.expect_column_values_to_not_be_null("Title"),
+        "review/score": df_ge.expect_column_values_to_not_be_null("review/score"),
+        "Price": df_ge.expect_column_values_to_be_between("Price", min_value=0),
+        "review/time format": df_ge.expect_column_values_to_match_regex("review/time", r"\\d+"),
+        "review/helpfulness format": df_ge.expect_column_values_to_match_regex("review/helpfulness", r"\\d+/\\d+")
+    }
+    
+    for check, result in validation_checks.items():
+        logging.info(f"{check} validation: {result['success']}")
 
     df = df.withColumn(
         "is_valid",
