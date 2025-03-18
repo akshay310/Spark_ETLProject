@@ -1,0 +1,8 @@
+{
+    "server": "192.168.1.109",
+    "database": "nyc_pyspark",
+    "table": "testing_taxi",
+    "user": "pyspark",
+    "password": "123",
+    "driver": "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+}
