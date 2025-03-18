@@ -1,4 +1,5 @@
 city_inspections.json
 requirements.txt
+data_quality_proj.py
 /__pycache__
 /city_inspections_json_bad_records.parquet
