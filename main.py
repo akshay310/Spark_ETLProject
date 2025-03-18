@@ -1,7 +1,7 @@
 from json_read import read_json_data, start_spark
 from flatten_json import flatten_json_df, clean_column_names
 from data_quality_check import validate_data_quality
-from write_mysql import write_to_mysql
+from load_to_mysql import write_to_mysql
 
 json_file = "city_inspections.json"
 spark = start_spark("DQ")
