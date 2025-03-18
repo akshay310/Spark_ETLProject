@@ -22,8 +22,8 @@ This project is a modular ETL (Extract, Transform, Load) pipeline built using Py
 
 1. **Clone the Repository**
    ```sh
-   git clone <https://github.com/akshay310/Spark_ETLProject/tree/oracleDB>
-   cd <Spark_ETLProject>
+   git clone https://github.com/akshay310/Spark_ETLProject/tree/oracleDB
+   cd Spark_ETLProject
    ```
 
 2. **Create a Virtual Environment**
@@ -76,9 +76,6 @@ This project is a modular ETL (Extract, Transform, Load) pipeline built using Py
   ```
 - To inspect bad records, check the `bad_data/` directory.
 - Modify `data_quality.py` to customize validation rules.
-
-## License
-This project is licensed under MIT. Feel free to modify and contribute!
 
 ---
 
