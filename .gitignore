@@ -1,0 +1,4 @@
+city_inspections.json
+requirements.txt
+/__pycache__
+/city_inspections_json_bad_records.parquet
