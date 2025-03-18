@@ -2,15 +2,15 @@
 import logging
 from pyspark.sql import DataFrame
 from pyspark.sql.utils import AnalysisException
-
+import os
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Oracle Database Connection Details
-ORACLE_URL = "jdbc:oracle:thin:@localhost:1521/XEPDB1"
-ORACLE_USER = "system"
-ORACLE_PASSWORD = "nabakallolghosh"
-ORACLE_DRIVER = "oracle.jdbc.OracleDriver"
+ORACLE_URL = os.getenv("ORACLE_URL")
+ORACLE_USER = os.getenv("ORACLE_USER")
+ORACLE_PASSWORD = os.getenv("ORACLE_PASSWORD")
+ORACLE_DRIVER = os.getenv("ORACLE_DRIVER")
 
 def save_to_oracle(df: DataFrame, table_name: str) -> None:
     """
