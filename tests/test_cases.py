@@ -1,14 +1,14 @@
-import pytest
 import os
 import sys
 import json
+import pytest
 from pyspark.sql import SparkSession
 from unittest import mock
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from load_parquet import create_spark_session, read_parquet_data
 from load_to_mssql import load_db_config, write_to_mssql
 from quality_checks import quality_checks
-from main import main
+
 
 
 @pytest.fixture(scope="session")
@@ -24,7 +24,9 @@ def sample_parquet(tmp_path, spark):
         (1, 10.5, 15, 50, 3, "Y", 2, 5),
         (2, 0.01, 1, 100, 8, "N", 5, 0),
     ]
-    columns = ["id", "trip_distance", "fare_amount", "trip_duration", "rate_code", "store_and_fwd_flag", "payment_type","tip_amount"]
+    columns = [
+        "id", "trip_distance", "fare_amount", "trip_duration", 
+        "rate_code", "store_and_fwd_flag", "payment_type","tip_amount"]
     df = spark.createDataFrame(data, columns)
 
     file_path = str(tmp_path / "test_data.parquet")
@@ -61,7 +63,9 @@ def test_read_parquet_data(spark, sample_parquet):
     df = read_parquet_data(spark, sample_parquet)
     assert df is not None
     assert df.count() == 2
-    assert set(df.columns) == {"id", "trip_distance", "fare_amount", "trip_duration", "rate_code", "store_and_fwd_flag", "payment_type","tip_amount"}
+    assert set(df.columns) == {
+        "id", "trip_distance", "fare_amount", "trip_duration", 
+        "rate_code", "store_and_fwd_flag", "payment_type","tip_amount"}
 
 
 def test_quality_checks(spark, sample_parquet):

@@ -10,3 +10,4 @@ nyc_taxi_2018_split.parquet/
 config.json
 etl_requirements.txt
 .pylintrc
+.coverage
