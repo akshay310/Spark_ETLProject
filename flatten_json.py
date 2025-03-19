@@ -41,7 +41,7 @@ def flatten_json_df(df_arg: DataFrame, index: int = 1) -> DataFrame:
     :raises Exception: If the flattening process fails.
     """
     try:
-        logging.info("Flattening JSON DataFrame")
+        logging.info("Flattening JSON DataFrame......")
         df = update_column_names(df_arg, index) if index == 1 else df_arg
         fields = df.schema.fields
 

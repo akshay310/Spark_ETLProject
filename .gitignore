@@ -1,5 +1,9 @@
 city_inspections.json
 requirements.txt
 data_quality_proj.py
+read_web_data.py
 /__pycache__
 /city_inspections_json_bad_records.parquet
+/src
+/.pytest_cache
+/.ruffcache

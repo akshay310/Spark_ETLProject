@@ -14,7 +14,7 @@ allowed_values = {"result": ["Pass", "Fail", "No Violation Issued", "Violation I
 required_datatypes = {"address_zip" : "IntegerType"}
 unique_values = ["id", "certificate_number","id_oid"]
 good_df, bad_df = validate_data_quality(cleaned_flattened_df, required_columns, allowed_values, required_datatypes, unique_values)
-bad_df.write.format("parquet").save("city_inspections_json_bad_records.parquet")
+bad_df.write.format("parquet").mode("overwrite").save("city_inspections_json_bad_records.parquet")
 url_db="jdbc:mysql://localhost:3306/city"
 db_table = "city_inspections"
 user = "root"

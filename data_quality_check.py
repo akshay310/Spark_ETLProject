@@ -51,7 +51,7 @@ def validate_data_quality(spark_df, required_columns, allowed_values, required_d
         for expectation in expectations:
             if not expectation["success"]:
                 failed_conditions.append(expectation["expectation_config"]["kwargs"]["column"])
-        
+        print(failed_conditions)
         if failed_conditions:
             bad_records = spark_df.filter(
                 (col(failed_conditions[0]).isNull()) | (col(failed_conditions[0]) == "")
@@ -71,3 +71,4 @@ def validate_data_quality(spark_df, required_columns, allowed_values, required_d
     except Exception as e:
         logging.error(f"Error during data quality validation: {e}")
         raise
+    
