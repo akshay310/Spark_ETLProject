@@ -1,4 +1,6 @@
-#main.py
+"""
+Main module for orchestrating the ETL pipeline.
+"""
 import logging
 from load_data import load_data
 from data_quality import validate_and_clean_data

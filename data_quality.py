@@ -1,9 +1,12 @@
-from pyspark.sql import DataFrame
-from pyspark.sql.functions import col, when
-import great_expectations as ge
+"""
+Module for data validation using Great Expectations.
+"""
 import logging
 import re
 from datetime import datetime
+import great_expectations as ge
+from pyspark.sql import DataFrame
+from pyspark.sql.functions import col, when
 
 def sanitize_column_name(col_name: str) -> str:
     """Replaces special characters in column names with underscores for Oracle compatibility."""
@@ -21,7 +24,10 @@ def format_review_time(review_time):
     """
     try:
         timestamp = int(float(review_time))
-        return datetime.utcfromtimestamp(timestamp).strftime("%d-%b-%Y %H:%M:%S") if timestamp >= 0 else None
+        return (
+            datetime.utcfromtimestamp(timestamp).strftime("%d-%b-%Y %H:%M:%S")
+            if timestamp >= 0 else None
+        )
     except (ValueError, TypeError):
         return None
 
@@ -54,7 +60,9 @@ def validate_and_clean_data(df: DataFrame):
     """
     logging.info("Performing data validation and cleaning...")
 
-    expected_columns = ["Id", "Title", "review/score", "Price", "review/time", "review/helpfulness"]
+    expected_columns = [
+        "Id", "Title", "review/score", "Price", "review/time", "review/helpfulness"
+    ]
     df = df.select(*[c for c in expected_columns if c in df.columns])  # Select required columns
 
     # Great Expectations validation
@@ -64,12 +72,14 @@ def validate_and_clean_data(df: DataFrame):
         "Title": df_ge.expect_column_values_to_not_be_null("Title"),
         "review/score": df_ge.expect_column_values_to_not_be_null("review/score"),
         "Price": df_ge.expect_column_values_to_be_between("Price", min_value=0),
-        "review/time format": df_ge.expect_column_values_to_match_regex("review/time", r"\\d+"),
-        "review/helpfulness format": df_ge.expect_column_values_to_match_regex("review/helpfulness", r"\\d+/\\d+")
+        "review/time format": df_ge.expect_column_values_to_match_regex("review/time", r"\d+"),
+        "review/helpfulness format": df_ge.expect_column_values_to_match_regex(
+            "review/helpfulness", r"\d+/\d+"
+        )
     }
-    
+
     for check, result in validation_checks.items():
-        logging.info(f"{check} validation: {result['success']}")
+        logging.info("%s validation: %s", check, result["success"])
 
     df = df.withColumn(
         "is_valid",
@@ -87,5 +97,5 @@ def validate_and_clean_data(df: DataFrame):
     good_records_df = df.filter(col("is_valid")).drop("is_valid")
     bad_records_df = df.filter(~col("is_valid")).drop("is_valid")
 
-    logging.info(f"Valid records: {good_records_df.count()}, Invalid records: {bad_records_df.count()}")
+    logging.info("Valid records: %d, Invalid records: %d", good_records_df.count(), bad_records_df.count())
     return good_records_df, bad_records_df

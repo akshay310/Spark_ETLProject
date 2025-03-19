@@ -1,8 +1,10 @@
-#load_data.py
-from pyspark.sql import SparkSession
+"""
+Module to load CSV data into a PySpark DataFrame.
+"""
 import logging
 import csv
 import chardet
+from pyspark.sql import SparkSession
 
 def detect_encoding(file_path: str) -> str:
     """Detects file encoding using chardet"""
@@ -20,13 +22,13 @@ def detect_delimiter(file_path: str) -> str:
 
 def load_data(file_path: str):
     """Loads data from a CSV file with auto-detected encoding and delimiter"""
-    logging.info(f"Detecting encoding for {file_path}...")
+    logging.info("Detecting encoding for %s...", file_path)
     encoding = detect_encoding(file_path)
-    
-    logging.info(f"Detecting delimiter for {file_path}...")
+
+    logging.info("Detecting delimiter for %s...", file_path)
     delimiter = detect_delimiter(file_path)
-    
-    logging.info(f"Loading data with encoding={encoding} and delimiter={delimiter}")
+
+    logging.info("Loading data with encoding=%s and delimiter=%s", encoding, delimiter)
 
     spark = SparkSession.builder \
         .appName("ETL-Load-Data") \
@@ -34,7 +36,7 @@ def load_data(file_path: str):
         .config("spark.executor.memory", "4g") \
         .config("spark.jars", "/opt/oracle/ojdbc11.jar") \
         .getOrCreate()
-    
+
     df = spark.read \
         .option("header", "true") \
         .option("inferSchema", "true") \
@@ -42,5 +44,5 @@ def load_data(file_path: str):
         .option("delimiter", delimiter) \
         .csv(file_path)
 
-    logging.info(f"Loaded {df.count()} records from {file_path}.")
+    logging.info("Loaded %d records from %s.", df.count(), file_path)
     return df

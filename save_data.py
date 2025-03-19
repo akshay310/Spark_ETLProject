@@ -1,6 +1,8 @@
-#save_data.py
-from pyspark.sql import DataFrame
+"""
+Module for handling saving of data.
+"""
 import logging
+from pyspark.sql import DataFrame
 
 def save_data(good_records_df: DataFrame, bad_records_df: DataFrame, bad_records_path: str):
     """
@@ -11,8 +13,11 @@ def save_data(good_records_df: DataFrame, bad_records_df: DataFrame, bad_records
         bad_records_df (DataFrame): Invalid records DataFrame.
         bad_records_path (str): Path to save bad records.
     """
-    if bad_records_df.count() > 0:
-        bad_records_df.write.mode("overwrite").parquet(bad_records_path)
-        logging.info(f"Saved {bad_records_df.count()} bad records to {bad_records_path}.")
+    bad_records_count = bad_records_df.count()
+    good_records_count = good_records_df.count()
 
-    logging.info(f"{good_records_df.count()} good records ready for Oracle ingestion.")
+    if bad_records_count > 0:
+        bad_records_df.write.mode("overwrite").parquet(bad_records_path)
+        logging.info("Saved %d bad records to %s.", bad_records_count, bad_records_path)
+
+    logging.info("%d good records ready for Oracle ingestion.", good_records_count)
