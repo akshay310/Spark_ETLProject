@@ -21,7 +21,7 @@ def load_db_config(config_path):
         Exception: If any error in loading the configuration.
     '''
     try:
-        with open(config_path, "r") as file:
+        with open(config_path, "r", encoding = "utf-8") as file:
             config = json.load(file)
         logger.info("Database configuration loaded successfully.")
         return config
@@ -47,7 +47,11 @@ def write_to_mssql(df: DataFrame, db_config):
             f"encrypt=true;trustServerCertificate=true"
         )
 
-        logger.info("Writing data to MSSQL table: %s . %s", db_config["database"], db_config["table"])
+        logger.info(
+            "Writing data to MSSQL table: %s . %s",
+             db_config["database"],
+             db_config["table"]
+             )
 
         # Writing the DataFrame to MSSQL using JDBC
         df.write \

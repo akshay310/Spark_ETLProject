@@ -9,3 +9,4 @@ nyc_taxi_2018_split.parquet/
 *.parquet
 config.json
 etl_requirements.txt
+.pylintrc
