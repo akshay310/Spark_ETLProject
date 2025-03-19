@@ -34,8 +34,7 @@ def main(file_path):
         logger.info("Bad data saved separately.")
 
         if good_data.count() > 0:
-            db_config = load_db_config('/home/vaishnavi/nyc_taxi_pyspark/nyc_taxi/config.json') 
-
+            db_config = load_db_config('/home/vaishnavi/nyc_taxi_pyspark/nyc_taxi/config.json')
             write_to_mssql(good_data, db_config)
         else:
             logger.warning("No good data to write.")
