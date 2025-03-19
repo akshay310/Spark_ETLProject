@@ -3,3 +3,5 @@ __pycache__
 .pytest_cache
 .ruff_cache
 .coveragerc
+.coverage
+.coverage.LAPTOP-OTII9OR8.9110.XJuVgsTx
