@@ -6,4 +6,4 @@ read_web_data.py
 /city_inspections_json_bad_records.parquet
 /src
 /.pytest_cache
-/.ruffcache
+/.ruff_cache
