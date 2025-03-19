@@ -48,7 +48,8 @@ def validate_data(df: DataFrame):
             filter_condition = " OR ".join(f"NOT ({condition})" for condition in failed_conditions)
             bad_records_df = df.filter(filter_condition)
             good_records_df = df.subtract(bad_records_df)
-            logging.info("Bad records found. Good: %s | Bad: %s", good_records_df.count(), bad_records_df.count())
+            logging.info("Bad records found. Good: %s | Bad: %s",
+             good_records_df.count(), bad_records_df.count())
         else:
             good_records_df = df
             bad_records_df = None
