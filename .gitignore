@@ -10,3 +10,4 @@ read_web_data.py
 read_data_requirements.py
 write_bad_records.py
 test_functions2.py
+.coverage
