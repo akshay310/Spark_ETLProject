@@ -1,18 +1,20 @@
 import pytest
-from pyspark.sql import SparkSession
 import sys
 import os
+from pyspark.sql import SparkSession
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from load_data import load_data
 from data_quality import validate_and_clean_data
 from save_data import save_data
 from load_to_oracle import save_to_oracle
-
-
+import os
 
 @pytest.fixture(scope="session")
 def spark():
-    return SparkSession.builder.appName("TestETL").getOrCreate()
+    return SparkSession.builder \
+    .appName("TestETL") \
+    .config("spark.jars", "/opt/oracle/ojdbc11.jar") \
+    .getOrCreate()
 
 @pytest.fixture
 def sample_csv(tmp_path):
@@ -55,7 +57,7 @@ def test_save_to_oracle(spark, sample_csv, monkeypatch):
     
     monkeypatch.setenv("ORACLE_URL", "jdbc:oracle:thin:@localhost:1521/XEPDB1")
     monkeypatch.setenv("ORACLE_USER", "system")
-    monkeypatch.setenv("ORACLE_PASSWORD", "password")
+    monkeypatch.setenv("ORACLE_PASSWORD", "nabakallolghosh")
     monkeypatch.setenv("ORACLE_DRIVER", "oracle.jdbc.OracleDriver")
     
     try:

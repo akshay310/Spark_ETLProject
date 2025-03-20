@@ -5,3 +5,4 @@ __pycache__
 .env
 sonar-scanner.zip
 .ruff_cache
+.*

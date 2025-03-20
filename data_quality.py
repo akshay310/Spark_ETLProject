@@ -96,6 +96,7 @@ def validate_and_clean_data(df: DataFrame):
 
     good_records_df = df.filter(col("is_valid")).drop("is_valid")
     bad_records_df = df.filter(~col("is_valid")).drop("is_valid")
-
-    logging.info("Valid records: %d, Invalid records: %d", good_records_df.count(), bad_records_df.count())
+    good_count=good_records_df.count()
+    bad_count=bad_records_df.count()
+    logging.info("Valid records:%d,Invalid records:%d",good_count,bad_count)
     return good_records_df, bad_records_df
