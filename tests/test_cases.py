@@ -57,11 +57,6 @@ def test_create_spark_session():
     assert isinstance(spark, SparkSession)
     assert spark.version is not None
 
-def test_spark_session_failure():
-    """Test to ensure Spark session fails under incorrect configurations."""
-    with pytest.raises(PySparkRuntimeError):  # Expecting a runtime error
-        spark = create_spark_session()
-        spark.stop()  # Cleanup if session starts unexpectedly
 
 def test_read_parquet_data(spark, sample_parquet):
     """Test reading a Parquet file."""
@@ -77,8 +72,8 @@ def test_read_parquet_data_failure(spark, caplog):
 
     invalid_path = "non_existent.parquet"  # Invalid file path
 
-    with caplog.at_level(logging.ERROR):  # Capture log messages at ERROR level
-        with pytest.raises(Exception) as exc_info:  # Expect an exception
+    with caplog.at_level(logging.ERROR):  
+        with pytest.raises(Exception) as exc_info:  
             read_parquet_data(spark, invalid_path)
 
     # Check if the log message contains expected error message
