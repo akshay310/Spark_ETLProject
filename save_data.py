@@ -12,7 +12,7 @@ def save_data(good_records_df: DataFrame, bad_records_df: DataFrame, bad_records
         good_records_df (DataFrame): Validated DataFrame.
         bad_records_df (DataFrame): Invalid records DataFrame.
         bad_records_path (str): Path to save bad records.
-    """
+    """ 
     bad_records_count = bad_records_df.count()
     good_records_count = good_records_df.count()
 

@@ -1,16 +1,20 @@
 """
 Main module for orchestrating the ETL pipeline.
 """
+import json
 import logging
 from load_data import load_data
 from data_quality import validate_and_clean_data
 from save_data import save_data
 from load_to_oracle import save_to_oracle
+#load configuration
+with open("config.json","r") as f:
+    config=json.load(f)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-def main(file_path: str, table_name: str, bad_records_path: str):
+def main():
     """
     Executes the ETL pipeline:
     1. Loads data from CSV into PySpark DataFrame.
@@ -24,6 +28,11 @@ def main(file_path: str, table_name: str, bad_records_path: str):
         bad_records_path (str): Path to store bad records.
     """
     logging.info("Starting ETL process.")
+
+    # Extract configuration values
+    file_path = config["etl_config"]["source"]["file_path"]
+    table_name = config["etl_config"]["target"]["table_name"]
+    bad_records_path = config["etl_config"]["target"]["bad_records_path"]
 
     # Load Data
     df = load_data(file_path)
@@ -40,8 +49,4 @@ def main(file_path: str, table_name: str, bad_records_path: str):
     logging.info("ETL process completed successfully.")
 
 if __name__ == "__main__":
-    FILE_PATH = "/home/writv/pyspark_etl/dataset/Books_rating.csv"
-    TABLE_NAME = "BOOKRATINGS"
-    BAD_RECORDS_PATH = "/home/writv/pyspark_etl/bad_data/to/validation_results.parquet"
-
-    main(FILE_PATH, TABLE_NAME, BAD_RECORDS_PATH)
+    main()

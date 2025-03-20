@@ -1,19 +1,21 @@
 """
 Module to load data into Oracle Database.
 """
+import json
 import os
 import logging
 from pyspark.sql import DataFrame
 from pyspark.sql.utils import AnalysisException
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+# Load configuration
+with open("config.json", "r") as f:
+    config = json.load(f)
 
 # Oracle Database Connection Details
-ORACLE_URL = os.getenv("ORACLE_URL")
-ORACLE_USER = os.getenv("ORACLE_USER")
-ORACLE_PASSWORD = os.getenv("ORACLE_PASSWORD")
-ORACLE_DRIVER = os.getenv("ORACLE_DRIVER")
+ORACLE_CONFIG = config["etl_config"]["oracle_connection"]
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 def save_to_oracle(df: DataFrame, table_name: str) -> None:
     """
@@ -27,12 +29,12 @@ def save_to_oracle(df: DataFrame, table_name: str) -> None:
         logging.info("Saving DataFrame to Oracle database...")
         df.write \
             .format("jdbc") \
-            .option("url", ORACLE_URL) \
+            .option("url", ORACLE_CONFIG["url"]) \
             .option("dbtable", table_name) \
-            .option("user", ORACLE_USER) \
-            .option("password", ORACLE_PASSWORD) \
-            .option("driver", ORACLE_DRIVER) \
-            .option("sessionInitStatement", "ALTER SESSION SET ISOLATION LEVEL READ COMMITTED") \
+            .option("user", ORACLE_CONFIG["user"]) \
+            .option("password", ORACLE_CONFIG["password"]) \
+            .option("driver",  ORACLE_CONFIG["driver"]) \
+            .option("sessionInitStatement", ORACLE_CONFIG["sessionInitStatement"]) \
             .mode("append") \
             .save()
         logging.info("Data successfully saved to Oracle table: %s", table_name)

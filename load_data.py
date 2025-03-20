@@ -1,17 +1,22 @@
 """
 Module to load CSV data into a PySpark DataFrame.
 """
+import json
 import logging
 import csv
 import chardet
 from pyspark.sql import SparkSession
+
+#load configuration
+with open("config.json", "r") as f:
+    config = json.load(f)
 
 def detect_encoding(file_path: str) -> str:
     """Detects file encoding using chardet"""
     with open(file_path, "rb") as f:
         raw_data = f.read(100000)  # Read first 100KB
         result = chardet.detect(raw_data)
-    return result["encoding"] or "utf-8"
+    return result["encoding"] or config["etl_config"]["source"]["encoding"]
 
 def detect_delimiter(file_path: str) -> str:
     """Detects the delimiter from the first line of the file"""
@@ -38,8 +43,8 @@ def load_data(file_path: str):
         .getOrCreate()
 
     df = spark.read \
-        .option("header", "true") \
-        .option("inferSchema", "true") \
+        .option("header", config["etl_config"]["source"]["header"]) \
+        .option("inferSchema", config["etl_config"]["source"]["inferSchema"]) \
         .option("encoding", encoding) \
         .option("delimiter", delimiter) \
         .csv(file_path)

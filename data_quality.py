@@ -1,12 +1,17 @@
 """
 Module for data validation using Great Expectations.
 """
+import json
 import logging
 import re
 from datetime import datetime
 import great_expectations as ge
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, when
+
+# Load configuration
+with open("config.json", "r") as f:
+    config = json.load(f)
 
 def sanitize_column_name(col_name: str) -> str:
     """Replaces special characters in column names with underscores for Oracle compatibility."""
@@ -61,25 +66,32 @@ def validate_and_clean_data(df: DataFrame):
     logging.info("Performing data validation and cleaning...")
 
     expected_columns = [
-        "Id", "Title", "review/score", "Price", "review/time", "review/helpfulness"
-    ]
+        check["column"] 
+        for check in config["etl_config"]["data_quality_checks"]
+        ]
     df = df.select(*[c for c in expected_columns if c in df.columns])  # Select required columns
 
     # Great Expectations validation
     df_ge = ge.dataset.SparkDFDataset(df)
-    validation_checks = {
-        "Id": df_ge.expect_column_values_to_not_be_null("Id"),
-        "Title": df_ge.expect_column_values_to_not_be_null("Title"),
-        "review/score": df_ge.expect_column_values_to_not_be_null("review/score"),
-        "Price": df_ge.expect_column_values_to_be_between("Price", min_value=0),
-        "review/time format": df_ge.expect_column_values_to_match_regex("review/time", r"\d+"),
-        "review/helpfulness format": df_ge.expect_column_values_to_match_regex(
-            "review/helpfulness", r"\d+/\d+"
-        )
-    }
+    validation_results = {}
 
-    for check, result in validation_checks.items():
-        logging.info("%s validation: %s", check, result["success"])
+    for check in config["etl_config"]["data_quality_checks"]:
+        column = check["column"]
+        check_type = check["check"]
+
+        if check_type == "not_null":
+            validation_results[column] = df_ge.expect_column_values_to_not_be_null(column)
+        elif check_type == "greater_than_equal":
+            validation_results[column] = df_ge.expect_column_values_to_be_between(
+                column, min_value=check["value"]
+            )
+        elif check_type == "regex_match":
+            validation_results[column] = df_ge.expect_column_values_to_match_regex(
+                column, check["pattern"]
+            )
+
+    for column, result in validation_results.items():
+        logging.info("Validation on column '%s': %s", column, result["success"])
 
     df = df.withColumn(
         "is_valid",
