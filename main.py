@@ -7,8 +7,6 @@ from load_data import load_data
 from data_quality import validate_and_clean_data
 from save_data import save_data
 from load_to_oracle import save_to_oracle
-#load configuration
-
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -43,7 +41,7 @@ def main(config):
     save_data(good_records_df, bad_records_df, bad_records_path)
 
     # Load to Oracle
-    save_to_oracle(good_records_df, table_name,config)
+    save_to_oracle(good_records_df, table_name)
 
     logging.info("ETL process completed successfully.")
 

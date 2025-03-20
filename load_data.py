@@ -1,13 +1,10 @@
 """
 Module to load CSV data into a PySpark DataFrame.
 """
-
 import logging
 import csv
 import chardet
 from pyspark.sql import SparkSession
-
-
 
 def detect_encoding(file_path: str,config) -> str:
     """Detects file encoding using chardet"""

@@ -1,21 +1,21 @@
 """
 Module to load data into Oracle Database.
 """
-import json
 import os
 import logging
 from pyspark.sql import DataFrame
 from pyspark.sql.utils import AnalysisException
 
-# # Load configuration
-# with open("config.json", "r") as f:
-#     config = json.load(f)
-
-
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-def save_to_oracle(df: DataFrame, table_name: str,config) -> None:
+# Oracle Database Connection Details
+ORACLE_URL = os.getenv("ORACLE_URL")
+ORACLE_USER = os.getenv("ORACLE_USER")
+ORACLE_PASSWORD = os.getenv("ORACLE_PASSWORD")
+ORACLE_DRIVER = os.getenv("ORACLE_DRIVER")
+
+def save_to_oracle(df: DataFrame, table_name: str) -> None:
     """
     Saves a cleaned and validated PySpark DataFrame to an Oracle database.
 
@@ -23,19 +23,16 @@ def save_to_oracle(df: DataFrame, table_name: str,config) -> None:
         df (DataFrame): The DataFrame containing valid records.
         table_name (str): The target Oracle table name.
     """
-    
-    # Oracle Database Connection Details
-    ORACLE_CONFIG = config["etl_config"]["oracle_connection"]
     try:
         logging.info("Saving DataFrame to Oracle database...")
         df.write \
             .format("jdbc") \
-            .option("url", ORACLE_CONFIG["url"]) \
+            .option("url", ORACLE_URL) \
             .option("dbtable", table_name) \
-            .option("user", ORACLE_CONFIG["user"]) \
-            .option("password", ORACLE_CONFIG["password"]) \
-            .option("driver",  ORACLE_CONFIG["driver"]) \
-            .option("sessionInitStatement", ORACLE_CONFIG["sessionInitStatement"]) \
+            .option("user", ORACLE_USER) \
+            .option("password", ORACLE_PASSWORD) \
+            .option("driver", ORACLE_DRIVER) \
+            .option("sessionInitStatement", "ALTER SESSION SET ISOLATION LEVEL READ COMMITTED") \
             .mode("append") \
             .save()
         logging.info("Data successfully saved to Oracle table: %s", table_name)

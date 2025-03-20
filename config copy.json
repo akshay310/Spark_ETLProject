@@ -1,55 +1,48 @@
 {
-    "etl_config": {
-      "logging_level": "INFO",
-      "source": {
-        "file_path": "/home/writv/pyspark_etl/dataset/Books_rating.csv",
-        "file_type": "csv",
-        "header": "true",
-        "inferSchema": "true",
-        "chunk_size": 10000,
-        "encoding": "utf-8",
-        "delimiter": ","
+  "etl_config": {
+    "logging_level": "INFO",
+    "source": {
+      "file_path": "/home/writv/pyspark_etl/dataset/Books_rating.csv",
+      "file_type": "csv",
+      "header": "true",
+      "inferSchema": "true",
+      "chunk_size": 10000,
+      "encoding": "utf-8",
+      "delimiter": ","
+    },
+    "target": {
+      "database": "oracle",
+      "table_name": "BOOKRATINGS",
+      "bad_records_path": "/home/writv/pyspark_etl/bad_data/to/validation_results.parquet"
+    },
+    "data_quality_checks": [
+      {
+        "check": "not_null",
+        "column": "Id"
       },
-      "target": {
-        "database": "oracle",
-        "table_name": "BOOKRATINGS",
-        "bad_records_path": "/home/writv/pyspark_etl/bad_data/to/validation_results.parquet"
+      {
+        "check": "not_null",
+        "column": "Title"
       },
-      "oracle_connection": {
-        "url": "jdbc:oracle:thin:@localhost:1521/XEPDB1",
-        "user": "system",
-        "password": "yourpassword",
-        "driver": "oracle.jdbc.OracleDriver",
-        "sessionInitStatement": "ALTER SESSION SET ISOLATION LEVEL READ COMMITTED"
+      {
+        "check": "not_null",
+        "column": "review/score"
       },
-      "data_quality_checks": [
-        {
-          "check": "not_null",
-          "column": "Id"
-        },
-        {
-          "check": "not_null",
-          "column": "Title"
-        },
-        {
-          "check": "not_null",
-          "column": "review/score"
-        },
-        {
-          "check": "greater_than_equal",
-          "column": "Price",
-          "value": 0
-        },
-        {
-          "check": "regex_match",
-          "column": "review/time",
-          "pattern": "\\d+"
-        },
-        {
-          "check": "regex_match",
-          "column": "review/helpfulness",
-          "pattern": "\\d+/\\d+"
-        }
-      ]
-    }
+      {
+        "check": "greater_than_equal",
+        "column": "Price",
+        "value": 0
+      },
+      {
+        "check": "regex_match",
+        "column": "review/time",
+        "pattern": "\\d+"
+      },
+      {
+        "check": "regex_match",
+        "column": "review/helpfulness",
+        "pattern": "\\d+/\\d+"
+      }
+    ]
   }
+}
