@@ -2,9 +2,12 @@ from json_read import read_json_data, start_spark
 from flatten_json import flatten_json_df, clean_column_names
 from data_quality_check import validate_data_quality
 from load_to_mysql import write_to_mysql
+#from read_data_requirements import get_file
 
 json_file = "city_inspections.json"
-spark = start_spark("DQ")
+#data_req_file = ""
+connector_path = "/home/reyona/pyproj/pyspark_proj_env/mysql-connector-j-9.2.0.jar"
+spark = start_spark(connector_path,"DQ")
 input_json_df = read_json_data(spark,json_file)
 flattened_df = flatten_json_df(input_json_df)
 cleaned_flattened_df = clean_column_names(flattened_df)

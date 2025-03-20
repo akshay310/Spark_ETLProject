@@ -1,51 +1,64 @@
 import pytest
-import logging
-from unittest.mock import MagicMock
-from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType
-from json_read import read_json_data
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, explode_outer
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType, MapType
+from unittest.mock import patch
+from json_read import start_spark, read_json_data
 from flatten_json import rename_dataframe_cols, update_column_names, flatten_json_df, clean_column_names
 from data_quality_check import get_date_columns, validate_data_quality
 from load_to_mysql import write_to_mysql
 
 @pytest.fixture(scope="session")
-
 def spark():
-    """Fixture to create a Spark session for testing"""
-    return SparkSession.builder.appName("TestApp").getOrCreate()
+    return SparkSession.builder.master("local[*]").appName("Test").getOrCreate()
 
-def test_read_json_data(spark, tmp_path):
-    """Test reading JSON data into a Spark DataFrame"""
-    test_json = tmp_path / "test.json"
-    test_json.write_text('{"name": "Alice", "age": 25}\n{"name": "Bob", "age": 30}')
+@pytest.fixture
+def sample_df(spark):
+    return spark.createDataFrame([
+        (1, "Alice", "2025-03-19"),
+        (2, "Bob", "2024-12-25"),
+    ], ["id", "name", "date_of_birth"])
 
-    df = read_json_data(spark, str(test_json))
-    assert df is not None
+@patch("json_read.logging")
+def test_start_spark(mock_logging):
+    spark_session = start_spark("/path/to/connector")
+    assert isinstance(spark_session, SparkSession)
+    mock_logging.info.assert_called_with("Spark session started successfully.")
+
+@patch("json_read.logging")
+def test_read_json_data(mock_logging, spark, tmp_path):
+    json_file = tmp_path / "test.json"
+    json_file.write_text('[{"name": "Alice"}, {"name": "Bob"}]')
+    df = read_json_data(spark, str(json_file))
     assert df.count() == 2
-    assert "name" in df.columns
-    assert "age" in df.columns
-
-def test_rename_dataframe_cols(spark):
-    """Test renaming columns in a DataFrame"""
-    data = [("Alice", 25), ("Bob", 30)]
-    schema = StructType([StructField("name", StringType(), True), StructField("age", IntegerType(), True)])
-    df = spark.createDataFrame(data, schema)
-
-    renamed_df = rename_dataframe_cols(df, {"name": "full_name", "age": "years_old"})
+    with pytest.raises(Exception):
+        read_json_data(spark, "non_existent.json")
+    mock_logging.error.assert_called()
+    mock_logging.info.assert_called_with("Successfully read JSON file: %s", str(json_file))
+"""
+@patch("flatten_json.logging")
+def test_read_json_data_file_not_found(mock_logging, spark):
+    with pytest.raises(Exception):
+        read_json_data(spark, "non_existent.json")
+    mock_logging.error.assert_called()
+"""
+@patch("flatten_json.logging")
+def test_rename_dataframe_cols(mock_logging, sample_df):
+    renamed_df = rename_dataframe_cols(sample_df, {"name": "full_name"})
     assert "full_name" in renamed_df.columns
-    assert "years_old" in renamed_df.columns
+    assert "name" not in renamed_df.columns
 
-def test_update_column_names(spark):
-    """Test updating column names with index"""
-    data = [("Alice", 25)]
-    df = spark.createDataFrame(data, ["name", "age"])
-    updated_df = update_column_names(df, 1)
-    
+@patch("flatten_json.logging")
+def test_update_column_names(mock_logging, sample_df):
+    updated_df = update_column_names(sample_df, 1)
     assert "name*1" in updated_df.columns
-    assert "age*1" in updated_df.columns
+    assert "name" not in updated_df.columns
 
-def test_flatten_json_df(spark):
+@patch("flatten_json.logging")
+def test_flatten_json_df(mock_logging, spark):
     """Test flattening a nested JSON structure in a Spark DataFrame"""
+    
+    # Define schema with a nested StructType
     schema = StructType([
         StructField("id", IntegerType(), True),
         StructField("details", StructType([
@@ -53,83 +66,61 @@ def test_flatten_json_df(spark):
             StructField("age", IntegerType(), True)
         ]), True)
     ])
+    
+    # Sample data
     data = [(1, ("Alice", 25))]
     df = spark.createDataFrame(data, schema)
 
+    # Call function to flatten JSON
     flattened_df = flatten_json_df(df)
+
+    # ✅ Assertions
     assert "details*1->name*2" in flattened_df.columns
     assert "details*1->age*2" in flattened_df.columns
 
-def test_clean_column_names(spark):
-    """Test cleaning column names"""
-    data = [("Alice", 25)]
-    df = spark.createDataFrame(data, ["Na!me", "A ge"])
+    # ✅ Check logging messages
+    mock_logging.info.assert_any_call("Flattening JSON DataFrame......")
+    mock_logging.info.assert_any_call("Flattening complete.")
+
+@patch("flatten_json.logging")
+def test_clean_column_names(mock_logging, sample_df):
+    dirty_df = rename_dataframe_cols(sample_df, {"date_of_birth": "date@of#birth!"})
+    cleaned_df = clean_column_names(dirty_df)
+    assert "date_of_birth" in cleaned_df.columns
+    assert "date@of#birth!" not in cleaned_df.columns
+
+@patch("data_quality_check.logging")
+def test_get_date_columns(mock_logging, sample_df):
+    date_cols = get_date_columns(sample_df)
+    assert "date_of_birth" in date_cols
+
+@patch("data_quality_check.logging")
+def test_validate_data_quality(mock_logging, spark, sample_df):
+    required_columns = ["id", "name"]
+    allowed_values = {"name": ["Alice", "Bob"]}
+    required_datatypes = {"id": "IntegerType", "name": "StringType"}
+    unique_values = ["id"]
     
-    cleaned_df = clean_column_names(df)
-    assert "Na_me" in cleaned_df.columns
-    assert "A_ge" in cleaned_df.columns
+    good_records, bad_records = validate_data_quality(sample_df, required_columns, allowed_values, required_datatypes, unique_values)
+    assert good_records.count() == 2
+    assert bad_records.count() == 0
+    mock_logging.info.assert_called_with("Data quality validation completed successfully")
 
-def test_get_date_columns(spark):
-    """Test extracting date columns"""
-    data = [("2024-01-01", "Alice"), ("2024-01-02", "Bob")]
-    df = spark.createDataFrame(data, ["event_date", "name"])
-    
-    date_cols = get_date_columns(df)
-    assert "event_date" in date_cols
-    assert "name" not in date_cols
+@patch("load_to_mysql.logging")
+def test_write_to_mysql_failure(mock_logging, sample_df):
+    """Test error handling when writing to MySQL fails"""
 
-def test_validate_data_quality(spark):
-    """Test data quality validation"""
-    data = [("Alice", "2024-01-01", "New York"), ("Bob", "Invalid Date", "LA")]
-    df = spark.createDataFrame(data, ["name", "event_date", "city"])
+    with patch("load_to_mysql.DataFrame.write") as mock_write:
+        write_to_mysql(sample_df, "jdbc:mysql://localhost:3306/test", "test_table", "user", "password")
+        mock_write.format.assert_called_with("jdbc")
+        mock_logging.info.assert_called_with("Data successfully written to MySQL")
 
-    required_columns = ["name"]
-    allowed_values = {"city": ["New York", "LA", "SF"]}
-    required_datatypes = {"name": "StringType"}
-    unique_values = ["name"]
+    with patch("load_to_mysql.DataFrame.write") as mock_write:
+        # Simulate an exception when calling `write`
+        mock_write.format.side_effect = Exception("Database connection error")
 
-    good_records, bad_records = validate_data_quality(df, required_columns, allowed_values, required_datatypes, unique_values)
+        with pytest.raises(Exception, match="Database connection error"):
+            write_to_mysql(sample_df, "jdbc:mysql://localhost:3306/test", "test_table", "user", "password")
 
-    assert good_records.count() > 0
-    assert bad_records.count() >= 0
-
-def test_write_to_mysql(mocker, spark):
-    """Test writing data to MySQL with a mock DataFrame."""
-    
-    # Mock DataFrame
-    mock_df = mocker.Mock(spec=DataFrame)
-
-    # Mock `write` property and method chaining
-    mock_write = MagicMock()
-    mock_df.write = mock_write
-    mock_write.format.return_value = mock_write
-    mock_write.option.return_value = mock_write
-    mock_write.save.return_value = None  # Simulate successful save
-
-    # Mock logging
-    mock_logger = mocker.patch.object(logging, "info")
-    mocker.patch.object(logging, "error")
-
-    # MySQL Config
-    db_config = {
-        "url": "jdbc:mysql://localhost/test_db",
-        "dbtable": "test_table",
-        "user": "root",
-        "password": "",
-    }
-
-    # Call the function
-    write_to_mysql(mock_df, **db_config)
-
-    # ✅ Assertions
-    mock_write.format.assert_called_once_with("jdbc")
-    mock_write.option.assert_any_call("driver", "com.mysql.cj.jdbc.Driver")
-    mock_write.option.assert_any_call("url", db_config["url"])
-    mock_write.option.assert_any_call("dbtable", db_config["dbtable"])
-    mock_write.option.assert_any_call("user", db_config["user"])
-    mock_write.option.assert_any_call("password", db_config["password"])
-    mock_write.save.assert_called_once()
-    
-    # ✅ Ensure logging messages were called
-    mock_logger.assert_any_call(f"Starting data write to MySQL table: {db_config['dbtable']}")
-    mock_logger.assert_any_call("Data successfully written to MySQL")
+        # ✅ Ensure the error is logged
+        mock_logging.error.assert_called_with("Error writing data to MySQL: %s", 'Database connection error')

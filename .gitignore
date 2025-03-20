@@ -7,3 +7,6 @@ read_web_data.py
 /src
 /.pytest_cache
 /.ruff_cache
+read_data_requirements.py
+write_bad_records.py
+test_functions2.py

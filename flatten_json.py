@@ -1,3 +1,26 @@
+"""
+Module: flatten_json  
+================================  
+
+This module provides utility functions for processing and transforming PySpark DataFrames,  
+with a focus on handling nested JSON structures, renaming columns, and cleaning column names.  
+
+### Functions:
+- `rename_dataframe_cols(df, col_names)`: Renames specified columns in a PySpark DataFrame.  
+- `update_column_names(df, index)`: Appends an index to column names to ensure uniqueness.  
+- `flatten_json_df(df_arg, index)`: Recursively flattens nested JSON structures within a DataFrame.  
+- `clean_column_names(df)`: Cleans column names by replacing special characters with underscores.  
+
+### Features:
+- Handles complex nested JSON structures with recursion.  
+- Ensures unique column names for better data consistency.  
+- Logs operations and errors for easier debugging.  
+
+Dependencies:
+- `pyspark.sql` for Spark DataFrame operations.  
+- `logging` for logging process information and errors.  
+- `re` for regex-based column name cleaning.  
+"""
 import re
 import logging
 from pyspark.sql import DataFrame
@@ -12,9 +35,10 @@ def rename_dataframe_cols(df: DataFrame, col_names: Dict[str, str]) -> DataFrame
     Rename all columns in dataframe
     """
     try:
-        return df.select(*[col(col_name).alias(col_names.get(col_name, col_name)) for col_name in df.columns])
+        return df.select(*[col(col_name).
+                           alias(col_names.get(col_name, col_name)) for col_name in df.columns])
     except Exception as e:
-        logging.error(f"Error renaming columns: {e}")
+        logging.error("Error renaming columns: %s", e)
         raise
 
 def update_column_names(df: DataFrame, index: int) -> DataFrame:
@@ -49,36 +73,31 @@ def flatten_json_df(df_arg: DataFrame, index: int = 1) -> DataFrame:
             data_type = str(field.dataType)
             column_name = field.name
             first_10_chars = data_type[0:10]
-    
             if first_10_chars == 'ArrayType(':
                 df_temp = df.withColumn(column_name, explode_outer(col(column_name)))
                 return flatten_json_df(df_temp, index + 1)
-            
             elif first_10_chars == 'StructType':
                 current_col = column_name
                 append_str = current_col
                 data_type_str = str(df.schema[current_col].dataType)
-
-                df_temp = df.withColumnRenamed(column_name, column_name + "#1") if column_name in data_type_str else df
+                df_temp = df.withColumnRenamed(column_name, \
+                            column_name + "#1") if column_name in data_type_str else df
                 current_col = current_col + "#1" if column_name in data_type_str else current_col
-                
                 df_before_expanding = df_temp.select(f"{current_col}.*")
                 newly_gen_cols = df_before_expanding.columns
-                
                 begin_index = append_str.rfind('*')
                 end_index = len(append_str)
                 level = append_str[begin_index + 1: end_index]
                 next_level = int(level) + 1
-                
-                custom_cols = dict((field, f"{append_str}->{field}*{next_level}") for field in newly_gen_cols)
+                custom_cols = dict((field, f"{append_str}->{field}*{next_level}")
+                                   for field in newly_gen_cols)
                 df_temp2 = df_temp.select("*", f"{current_col}.*").drop(current_col)
                 df_temp3 = df_temp2.transform(lambda df_x: rename_dataframe_cols(df_x, custom_cols))
                 return flatten_json_df(df_temp3, index + 1)
-        
         logging.info("Flattening complete.")
         return df
     except Exception as e:
-        logging.error(f"Error flattening JSON DataFrame: {e}")
+        logging.error("Error flattening JSON DataFrame: %s",e)
         raise
 
 def clean_column_names(df: DataFrame) -> DataFrame:
@@ -90,7 +109,6 @@ def clean_column_names(df: DataFrame) -> DataFrame:
         name = re.sub(r'_+', '_', name)
         name = name.strip('_')
         return name
-        
     new_columns = [clean(col) for col in df.columns]
     logging.info("Column names cleaned.")
     return df.toDF(*new_columns)
