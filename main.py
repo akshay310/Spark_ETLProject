@@ -7,7 +7,7 @@ from load_data import load_data
 from data_quality import validate_and_clean_data
 from save_data import save_data
 from load_to_oracle import save_to_oracle
-from create_table import create_table_if_not_exists  # New import
+from create_table import create_table_if_not_exists
 from pyspark.sql.functions import col
 
 # Configure logging

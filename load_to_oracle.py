@@ -33,7 +33,7 @@ def save_to_oracle(df: DataFrame, table_name: str) -> None:
             .option("password", ORACLE_PASSWORD) \
             .option("driver", ORACLE_DRIVER) \
             .option("sessionInitStatement", "ALTER SESSION SET ISOLATION LEVEL READ COMMITTED") \
-            .mode("append") \
+            .mode("overwrite") \
             .save()
         logging.info("Data successfully saved to Oracle table: %s", table_name)
     except AnalysisException as e:
