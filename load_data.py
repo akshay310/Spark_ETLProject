@@ -7,11 +7,11 @@ import csv
 import chardet
 from pyspark.sql import SparkSession
 
-#load configuration
-with open("config.json", "r") as f:
-    config = json.load(f)
+# #load configuration
+# with open("config.json", "r") as f:
+#     config = json.load(f)
 
-def detect_encoding(file_path: str) -> str:
+def detect_encoding(file_path: str,config) -> str:
     """Detects file encoding using chardet"""
     with open(file_path, "rb") as f:
         raw_data = f.read(100000)  # Read first 100KB
@@ -25,10 +25,10 @@ def detect_delimiter(file_path: str) -> str:
         dialect = csv.Sniffer().sniff(first_line)
         return dialect.delimiter
 
-def load_data(file_path: str):
+def load_data(file_path: str,config):
     """Loads data from a CSV file with auto-detected encoding and delimiter"""
     logging.info("Detecting encoding for %s...", file_path)
-    encoding = detect_encoding(file_path)
+    encoding = detect_encoding(file_path,config)
 
     logging.info("Detecting delimiter for %s...", file_path)
     delimiter = detect_delimiter(file_path)

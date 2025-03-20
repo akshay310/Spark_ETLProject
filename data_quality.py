@@ -9,9 +9,9 @@ import great_expectations as ge
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, when
 
-# Load configuration
-with open("config.json", "r") as f:
-    config = json.load(f)
+# # Load configuration
+# with open("config.json", "r") as f:
+#     config = json.load(f)
 
 def sanitize_column_name(col_name: str) -> str:
     """Replaces special characters in column names with underscores for Oracle compatibility."""
@@ -53,7 +53,7 @@ def clean_value(value, max_length=255):
         return value
     return None
 
-def validate_and_clean_data(df: DataFrame):
+def validate_and_clean_data(df: DataFrame,config):
     """
     Performs data quality checks, cleans data, and returns good and bad records.
 

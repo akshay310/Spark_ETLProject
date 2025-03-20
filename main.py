@@ -8,13 +8,12 @@ from data_quality import validate_and_clean_data
 from save_data import save_data
 from load_to_oracle import save_to_oracle
 #load configuration
-with open("config.json","r") as f:
-    config=json.load(f)
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-def main():
+def main(config):
     """
     Executes the ETL pipeline:
     1. Loads data from CSV into PySpark DataFrame.
@@ -35,18 +34,20 @@ def main():
     bad_records_path = config["etl_config"]["target"]["bad_records_path"]
 
     # Load Data
-    df = load_data(file_path)
+    df = load_data(file_path,config)
 
     # Validate & Clean Data
-    good_records_df, bad_records_df = validate_and_clean_data(df)
+    good_records_df, bad_records_df = validate_and_clean_data(df,config)
 
     # Save Data
     save_data(good_records_df, bad_records_df, bad_records_path)
 
     # Load to Oracle
-    save_to_oracle(good_records_df, table_name)
+    save_to_oracle(good_records_df, table_name,config)
 
     logging.info("ETL process completed successfully.")
 
 if __name__ == "__main__":
-    main()
+    with open("config.json","r") as f:
+        config=json.load(f)
+    main(config)

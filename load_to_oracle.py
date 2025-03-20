@@ -7,17 +7,15 @@ import logging
 from pyspark.sql import DataFrame
 from pyspark.sql.utils import AnalysisException
 
-# Load configuration
-with open("config.json", "r") as f:
-    config = json.load(f)
+# # Load configuration
+# with open("config.json", "r") as f:
+#     config = json.load(f)
 
-# Oracle Database Connection Details
-ORACLE_CONFIG = config["etl_config"]["oracle_connection"]
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-def save_to_oracle(df: DataFrame, table_name: str) -> None:
+def save_to_oracle(df: DataFrame, table_name: str,config) -> None:
     """
     Saves a cleaned and validated PySpark DataFrame to an Oracle database.
 
@@ -25,6 +23,9 @@ def save_to_oracle(df: DataFrame, table_name: str) -> None:
         df (DataFrame): The DataFrame containing valid records.
         table_name (str): The target Oracle table name.
     """
+    
+    # Oracle Database Connection Details
+    ORACLE_CONFIG = config["etl_config"]["oracle_connection"]
     try:
         logging.info("Saving DataFrame to Oracle database...")
         df.write \
