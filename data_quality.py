@@ -1,7 +1,7 @@
 """
 Module for data validation using Great Expectations.
 """
-import json
+
 import logging
 import re
 from datetime import datetime
@@ -9,9 +9,7 @@ import great_expectations as ge
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, when
 
-# # Load configuration
-# with open("config.json", "r") as f:
-#     config = json.load(f)
+
 
 def sanitize_column_name(col_name: str) -> str:
     """Replaces special characters in column names with underscores for Oracle compatibility."""

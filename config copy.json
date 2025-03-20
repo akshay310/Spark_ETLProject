@@ -18,7 +18,7 @@
       "oracle_connection": {
         "url": "jdbc:oracle:thin:@localhost:1521/XEPDB1",
         "user": "system",
-        "password": "nabakallolghosh",
+        "password": "yourpassword",
         "driver": "oracle.jdbc.OracleDriver",
         "sessionInitStatement": "ALTER SESSION SET ISOLATION LEVEL READ COMMITTED"
       },
