@@ -1,0 +1,207 @@
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ python main.py
+INFO:root:Successfully loaded database configuration.
+INFO:root:Detected Encoding: ascii
+INFO:root:Detected Delimiter: ,
+25/03/19 08:52:46 WARN Utils: Your hostname, LAPTOP-OTII9OR8 resolves to a loopback address: 127.0.1.1; using 172.20.109.35 instead (on interface eth0)
+25/03/19 08:52:46 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+25/03/19 08:52:47 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+INFO:root:Spark session created successfully.
+INFO:root:Encoding found: ascii                                                 
+INFO:root:Delimiter found: ,
+INFO:root:Data loaded successfully.
+INFO:root:Row count: 2805307                                                    
+WARNING:root:check_store_location check FAILED.                                 
+INFO:root:check_unique_invoice check PASSED.
+INFO:root:check_date_format check PASSED.
+INFO:root:check_sale_dollars check PASSED.
+INFO:root:check_bottles_sold check PASSED.
+INFO:root:Bad records found. Good: 2474972 | Bad: 330335                        
+INFO:root:Writing 330335 records to parquet file at /home/akshay/bad_records.parquet
+INFO:root:Bad records successfully written to: /home/akshay/bad_records.parquet 
+INFO:root:Good Records Schema: StructType([StructField('invoice_and_item_number', StringType(), True), StructField('date', DateType(), True), StructField('store_number', IntegerType(), True), StructField('store_name', StringType(), True), StructField('address', StringType(), True), StructField('city', StringType(), True), StructField('zip_code', DoubleType(), True), StructField('store_location', StringType(), True), StructField('county_number', IntegerType(), True), StructField('county', StringType(), True), StructField('category', DoubleType(), True), StructField('category_name', StringType(), True), StructField('vendor_number', DoubleType(), True), StructField('vendor_name', StringType(), True), StructField('item_number', IntegerType(), True), StructField('item_description', StringType(), True), StructField('pack', IntegerType(), True), StructField('bottle_volume_ml', IntegerType(), True), StructField('state_bottle_cost', DoubleType(), True), StructField('state_bottle_retail', DoubleType(), True), StructField('bottles_sold', IntegerType(), True), StructField('sale_dollars', DoubleType(), True), StructField('volume_sold_liters', DoubleType(), True), StructField('volume_sold_gallons', DoubleType(), True)])
+INFO:root:Good Records Count: 2474972                                           
+INFO:root:Checking if table public.iowa_liquor_sales exists in PostgreSQL.
+INFO:root:Writing 2474972 records to PostgreSQL table: public.iowa_liquor_sales
+INFO:root:Good records successfully written to PostgreSQL!                      
+INFO:root:ETL pipeline completed successfully!
+INFO:py4j.clientserver:Closing down clientserver connection
+
+RUFF CHECK
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ ruff check
+All checks passed!
+
+
+PYTEST CHECKS AND COVERAGE REPORT
+
+=========================== test session starts ============================
+platform linux -- Python 3.12.3, pytest-8.3.5, pluggy-1.5.0 -- /home/akshay/spark_ikart_env/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/akshay/project_etl
+plugins: anyio-4.9.0, cov-6.0.0
+collected 15 items
+
+etl_test.py::test_load_data 25/03/19 15:30:01 WARN Utils: Your hostname, LAPTOP-OTII9OR8 resolves to a loopback address: 127.0.1.1; using 172.27.126.24 instead (on interface eth0)
+25/03/19 15:30:01 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+25/03/19 15:30:04 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+25/03/19 15:30:10 WARN SparkSession: Using an existing Spark session; only runtime SQL configurations will take effect.
+PASSED
+etl_test.py::test_detect_encoding_and_delimiter PASSED
+etl_test.py::test_load_data_invalid_path PASSED
+etl_test.py::test_load_data_empty_file PASSED
+etl_test.py::test_load_data_invalid_format PASSED
+etl_test.py::test_data_quality PASSED
+etl_test.py::test_data_quality_checks_failed PASSED
+etl_test.py::test_load_data_all_good_records PASSED
+etl_test.py::test_validate_data_fails PASSED
+etl_test.py::test_data_quality_checks_missing_store_location PASSED
+etl_test.py::test_data_quality_checks_invalid_date_format PASSED
+etl_test.py::test_write_parquet PASSED
+etl_test.py::test_parquet_no_bad_records PASSED
+etl_test.py::test_write_postgres PASSED
+etl_test.py::test_postgres_write_failure PASSED
+==================================================== warnings summary =====================================================
+../spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:1635
+  /home/akshay/spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:1635: ChangedInMarshmallow4Warning: `Number` field should not be instantiated. Use `Integer`, `Float`, or `Decimal` instead.
+    config_version = fields.Number(
+
+../spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:2687
+  /home/akshay/spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:2687: ChangedInMarshmallow4Warning: `Number` field should not be instantiated. Use `Integer`, `Float`, or `Decimal` instead.
+    config_version = fields.Number(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform linux, python 3.12.3-final-0 -----------
+Name               Stmts   Miss  Cover   Missing
+------------------------------------------------
+load_data.py          50      3    94%   57-59
+quality_check.py      28      3    89%   59-61
+write_data.py         28      6    79%   28-30, 50-52
+------------------------------------------------
+TOTAL                106     12    88%
+
+PYLINT CHECKS
+akshay@LAPTOP-OTII9OR8:~$ source spark_ikart_env/bin/activate
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~$ cd project
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ pylint db_cred.py
+
+-------------------------------------------------------------------
+Your code has been rated at 10.00/10 (previous run: 9.00/10, +1.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ pylint load_data.py
+
+-------------------------------------------------------------------
+Your code has been rated at 10.00/10 (previous run: 9.44/10, +0.56)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ pylint quality_check.py
+************* Module quality_check
+quality_check.py:40:15: E1126: Sequence index is not an int, slice, or instance with __index__ (invalid-sequence-index)
+
+------------------------------------------------------------------
+Your code has been rated at 8.65/10 (previous run: 8.65/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ pylint write_data.py
+
+--------------------------------------------------------------------
+Your code has been rated at 10.00/10 (previous run: 10.00/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ pylint main.py
+************* Module main
+main.py:35:11: W0718: Catching too general exception Exception (broad-exception-caught)
+
+------------------------------------------------------------------
+Your code has been rated at 9.44/10 (previous run: 9.44/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~$ pylint project/
+************* Module main
+project/main.py:35:11: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module quality_check
+project/quality_check.py:40:15: E1126: Sequence index is not an int, slice, or instance with __index__ (invalid-sequence-index)
+
+------------------------------------------------------------------
+Your code has been rated at 9.63/10 (previous run: 8.91/10, +0.72)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~$ 
+
+
+
+Script to check the obtained records in Records Database, public.iowa_liquor_sales table in PostgreSQL
+
+
+akshay@LAPTOP-OTII9OR8:~$ sudo service postgresql start
+[sudo] password for akshay:
+ * Starting PostgreSQL 16 database server                                                              [ OK ]
+akshay@LAPTOP-OTII9OR8:~$ psql -U postgres
+Password for user postgres:
+psql (16.8 (Ubuntu 16.8-0ubuntu0.24.04.1))
+Type "help" for help.
+
+postgres=# \c records;
+You are now connected to database "records" as user "postgres".
+records=# \dt;
+               List of relations
+ Schema |       Name        | Type  |  Owner
+--------+-------------------+-------+----------
+ public | iowa_liquor_sales | table | postgres
+(1 row)
+
+records=# SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';
+    table_name
+-------------------
+ iowa_liquor_sales
+(1 row)
+
+records=# \d iowa_liquor_sales;
+                      Table "public.iowa_liquor_sales"
+         Column          |       Type       | Collation | Nullable | Default
+-------------------------+------------------+-----------+----------+---------
+ invoice_and_item_number | text             |           |          |
+ date                    | date             |           |          |
+ store_number            | integer          |           |          |
+ store_name              | text             |           |          |
+ address                 | text             |           |          |
+ city                    | text             |           |          |
+ zip_code                | double precision |           |          |
+ store_location          | text             |           |          |
+ county_number           | integer          |           |          |
+ county                  | text             |           |          |
+ category                | double precision |           |          |
+ category_name           | text             |           |          |
+ vendor_number           | double precision |           |          |
+ vendor_name             | text             |           |          |
+ item_number             | integer          |           |          |
+ item_description        | text             |           |          |
+ pack                    | integer          |           |          |
+ bottle_volume_ml        | integer          |           |          |
+ state_bottle_cost       | double precision |           |          |
+ state_bottle_retail     | double precision |           |          |
+ bottles_sold            | integer          |           |          |
+ sale_dollars            | double precision |           |          |
+ volume_sold_liters      | double precision |           |          |
+ volume_sold_gallons     | double precision |           |          |
+
+records=# SELECT * FROM iowa_liquor_sales LIMIT 10;
+ invoice_and_item_number |    date    | store_number |                 store_name                  |        address         |      city       | zip_code |            store_location             | county_number |   county   | category |       category_name       | vendor_number |    vendor_name     | item_number |         item_description         | pack | bottle_volume_ml | state_bottle_cost | state_bottle_retail | bottles_sold | sale_dollars | volume_sold_liters | volume_sold_gallons
+-------------------------+------------+--------------+---------------------------------------------+------------------------+-----------------+----------+---------------------------------------+---------------+------------+----------+---------------------------+---------------+--------------------+-------------+----------------------------------+------+------------------+-------------------+---------------------+--------------+--------------+--------------------+---------------------
+ INV-33190300025         | 2021-01-04 |         5905 | Aj's Jack & Jill / West Branch              | 115 E Main St          | West Branch     |    52358 | POINT (-91.343394 41.671391)          |            16 | CEDAR      |  1022100 | Mixto Tequila             |           395 | PROXIMO            |       89196 | Jose Cuervo Especial Reposado    |   12 |              750 |             11.07 |               16.61 |            3 |        49.83 |               2.25 |                0.59
+ INV-33172200073         | 2021-01-04 |         2509 | Hy-Vee / Drugtown #1 / Cedar Rapids         | 1520 6th St SW         | Cedar Rapids    |    52404 | POINT (-91.67706 41.962419)           |            57 | LINN       |  1081400 | American Schnapps         |           434 | LUXCO INC          |       81207 | Paramount Peppermint Schnapps    |   12 |             1000 |              4.28 |                6.42 |            3 |        19.26 |                  3 |                0.79
+ INV-33189000004         | 2021-01-04 |         3920 | Smokin' Joe's #11 Tobacco and Liquor Outlet | 1606 Camanche Ave      | Clinton         |    52732 | POINT (-90.204748 41.827845)          |            23 | CLINTON    |  1032100 | Imported Vodkas           |           370 | PERNOD RICARD USA  |       34003 | Absolut Swedish Vodka 80prf      |   24 |              200 |              2.99 |                4.49 |            2 |
+8.98 |                0.4 |                 0.1
+ INV-33175800062         | 2021-01-04 |         5092 | Kum & Go #3035 / West Des Moines            | 7265 Vista Dr          | West Des Moines |    50265 | POINT (-93.80783900000002 41.589057)  |            77 | POLK       |  1032100 | Imported Vodkas           |           370 | PERNOD RICARD USA  |       34001 | Absolut Swedish Vodka 80prf Mini |   10 |               50 |              7.92 |               11.88 |            4 |        47.52 |                0.2 |                0.05
+ INV-33187700026         | 2021-01-04 |         5106 | Randy's Neighborhood Market                 | 622 10th  St           | DeWitt          |    52742 | POINT (-90.540132 41.825139)          |            23 | CLINTON    |  1032200 | Imported Flavored Vodka   |           370 | PERNOD RICARD USA  |       64011 | Absolut Juice Edition Strawberry |    6 |              750 |              9.99 |               14.99 |            1 |        14.99 |               0.75 |                0.19
+ INV-33190000003         | 2021-01-04 |         4013 | Wal-Mart 0841 / Tipton                      | 1126 Highway 38 North  | Tipton          |    52772 | POINT (-91.03069 41.438006)           |            16 | CEDAR      |  1011200 | Straight Bourbon Whiskies |            65 | Jim Beam Brands    |       20248 | Old Crow                         |    6 |             1750 |              10.5 |               15.75 |            6 |
+94.5 |               10.5 |                2.77
+ INV-33191300010         | 2021-01-04 |         5397 | Casey's General Store # 2774/Amana          | 617 42nd Ave           | Amana           |    52203 | POINT (-91.874686 41.801173000000006) |            48 | IOWA       |  1031100 | American Vodkas           |           205 | E & J Gallo Winery |       36969 | New Amsterdam 80prf              |   12 |              750 |               7.5 |               11.25 |            6 |
+67.5 |                4.5 |                1.18
+ INV-33178300062         | 2021-01-04 |         2593 | Hy-Vee Food Store / Carroll                 | 905 US Highway 30 West | Carroll         |    51401 | POINT (-94.853591 42.064155)          |            14 | CARROLL    |  1012100 | Canadian Whiskies         |           259 | Heaven Hill Brands |       11777 | Black Velvet                     |   12 |             1000 |              6.63 |                9.95 |           24 |        238.8 |                 24 | 
+ INV-33179900003         | 2021-01-04 |         5326 | Als Liquor                                  | 215 W. Milwaukee Ave   | Storm Lake      |    50588 | POINT (-95.202405 42.647492)          |            11 | BUENA VIST |  1022200 | 100% Agave Tequila        |            85 | Brown Forman Corp. |       89268 | El Jimador Reposado              |    6 |             1750 |              21.6 |                32.4 |            2 |
+64.8 |                3.5 |                0.92
+ INV-33172000001         | 2021-01-04 |         5356 | Casey's General Store # 3561/ Cedar Rapids  | 1532 Ellis Blvd NW     | Cedar Rapids    |    52405 | POINT (-91.682151 41.988646)          |            57 | LINN       |  1012100 | Canadian Whiskies         |           260 | DIAGEO AMERICAS    |       10803 | Crown Royal Regal Apple Mini     |   10 |               50 |              7.35 |               11.03 |           10 |        110.3 |                0.5 |                0.13
+(10 rows)
+
+(END)

@@ -1,0 +1,61 @@
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/dynamic$ ruff check
+All checks passed!
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~$ pylint dynamic/
+************* Module main
+dynamic/main.py:37:11: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module db_cred
+dynamic/db_cred.py:24:7: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module load_data
+dynamic/load_data.py:77:0: C0303: Trailing whitespace (trailing-whitespace)
+dynamic/load_data.py:15:5: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+************* Module quality_check
+dynamic/quality_check.py:52:0: C0301: Line too long (113/100) (line-too-long)
+dynamic/quality_check.py:50:12: W0621: Redefining name 'bad_records_df' from outer scope (line 65) (redefined-outer-name)
+dynamic/quality_check.py:51:12: W0621: Redefining name 'good_records_df' from outer scope (line 65) (redefined-outer-name)
+
+------------------------------------------------------------------
+Your code has been rated at 9.64/10 (previous run: 9.64/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~$ cd dynamic
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/dynamic$ pylint db_cred.py
+************* Module db_cred
+db_cred.py:24:7: W0718: Catching too general exception Exception (broad-exception-caught)
+
+------------------------------------------------------------------
+Your code has been rated at 9.62/10 (previous run: 9.62/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/dynamic$ pylint load_data.py
+************* Module load_data
+load_data.py:77:0: C0303: Trailing whitespace (trailing-whitespace)
+load_data.py:15:5: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+p
+------------------------------------------------------------------
+Your code has been rated at 9.63/10 (previous run: 9.63/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/dynamic$ pylint quality_check.py
+************* Module quality_check
+quality_check.py:52:0: C0301: Line too long (113/100) (line-too-long)
+quality_check.py:50:12: W0621: Redefining name 'bad_records_df' from outer scope (line 65) (redefined-outer-name)
+quality_check.py:51:12: W0621: Redefining name 'good_records_df' from outer scope (line 65) (redefined-outer-name)
+
+------------------------------------------------------------------
+Your code has been rated at 9.42/10 (previous run: 9.42/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/dynamic$ pylint write_data.py
+
+--------------------------------------------------------------------
+Your code has been rated at 10.00/10 (previous run: 10.00/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/dynamic$ pylint main.py
+************* Module main
+main.py:37:11: W0718: Catching too general exception Exception (broad-exception-caught)
+
+------------------------------------------------------------------
+Your code has been rated at 9.52/10 (previous run: 9.52/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/dynamic$ 
+
+
+
+CANNOT RUN FULL PIPELINE, TESTS, TEST COVERAGES USING PYTEST DUE TO MEMORY ISSUES WITH SYSTEM

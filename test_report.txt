@@ -1,0 +1,156 @@
+RUFF CHECKS
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ ruff check
+All checks passed!
+
+PYLINT CHECKS
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ pylint config.py
+--------------------------------------------------------------------
+Your code has been rated at 10.00/10 (previous run: 10.00/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ pylint load_data.py
+--------------------------------------------------------------------
+Your code has been rated at 10.00/10 (previous run: 10.00/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ pylint main.py
+************* Module main
+main.py:35:11: W0718: Catching too general exception Exception (broad-exception-caught)
+
+------------------------------------------------------------------
+Your code has been rated at 9.44/10 (previous run: 9.44/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ pylint quality_check.py
+************* Module quality_check
+quality_check.py:40:15: E1126: Sequence index is not an int, slice, or instance with __index__ (invalid-sequence-index)
+
+------------------------------------------------------------------
+Your code has been rated at 8.65/10 (previous run: 8.38/10, +0.27)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ pylint write_data.py
+
+--------------------------------------------------------------------
+Your code has been rated at 10.00/10 (previous run: 10.00/10, +0.00)
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~$ pylint project/
+************* Module main
+project/main.py:35:11: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module quality_check
+project/quality_check.py:40:15: E1126: Sequence index is not an int, slice, or instance with __index__ (invalid-sequence-index)
+
+------------------------------------------------------------------
+Your code has been rated at 9.63/10 (previous run: 9.57/10, +0.06)
+
+PYTEST CHECKS
+
+=========================== test session starts ============================
+platform linux -- Python 3.12.3, pytest-8.3.5, pluggy-1.5.0 -- /home/akshay/spark_ikart_env/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/akshay/project_etl
+plugins: anyio-4.9.0, cov-6.0.0
+collected 15 items
+
+etl_test.py::test_load_data 25/03/19 15:30:01 WARN Utils: Your hostname, LAPTOP-OTII9OR8 resolves to a loopback address: 127.0.1.1; using 172.27.126.24 instead (on interface eth0)
+25/03/19 15:30:01 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+25/03/19 15:30:04 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+25/03/19 15:30:10 WARN SparkSession: Using an existing Spark session; only runtime SQL configurations will take effect.
+PASSED
+etl_test.py::test_detect_encoding_and_delimiter PASSED
+etl_test.py::test_load_data_invalid_path PASSED
+etl_test.py::test_load_data_empty_file PASSED
+etl_test.py::test_load_data_invalid_format PASSED
+etl_test.py::test_data_quality PASSED
+etl_test.py::test_data_quality_checks_failed PASSED
+etl_test.py::test_load_data_all_good_records PASSED
+etl_test.py::test_validate_data_fails PASSED
+etl_test.py::test_data_quality_checks_missing_store_location PASSED
+etl_test.py::test_data_quality_checks_invalid_date_format PASSED
+etl_test.py::test_write_parquet PASSED
+etl_test.py::test_parquet_no_bad_records PASSED
+etl_test.py::test_write_postgres PASSED
+etl_test.py::test_postgres_write_failure PASSED
+==================================================== warnings summary =====================================================
+../spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:1635
+  /home/akshay/spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:1635: ChangedInMarshmallow4Warning: `Number` field should not be instantiated. Use `Integer`, `Float`, or `Decimal` instead.
+    config_version = fields.Number(
+
+../spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:2687
+  /home/akshay/spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:2687: ChangedInMarshmallow4Warning: `Number` field should not be instantiated. Use `Integer`, `Float`, or `Decimal` instead.
+    config_version = fields.Number(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform linux, python 3.12.3-final-0 -----------
+Name               Stmts   Miss  Cover   Missing
+------------------------------------------------
+load_data.py          50      3    94%   57-59
+quality_check.py      28      3    89%   59-61
+write_data.py         28      6    79%   28-30, 50-52
+------------------------------------------------
+TOTAL                106     12    88%
+
+
+
+PYTEST COVERAGE
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project$ pytest --cov=load_data --cov=write_data --cov=quality_check --cov-report=term-missing
+====================================================== test session starts ======================================================
+platform linux -- Python 3.12.3, pytest-8.3.5, pluggy-1.5.0
+rootdir: /home/akshay/project
+plugins: anyio-4.9.0, cov-6.0.0
+collected 9 items                                                                                                               
+
+test_etl.py .........                                                                                                     [100%]
+
+======================================================= warnings summary ========================================================
+../spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:1635
+  /home/akshay/spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:1635: ChangedInMarshmallow4Warning: `Number` field should not be instantiated. Use `Integer`, `Float`, or `Decimal` instead.
+    config_version = fields.Number(
+
+../spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:2687
+  /home/akshay/spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:2687: ChangedInMarshmallow4Warning: `Number` field should not be instantiated. Use `Integer`, `Float`, or `Decimal` instead.
+    config_version = fields.Number(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform linux, python 3.12.3-final-0 -----------
+Name               Stmts   Miss  Cover   Missing
+------------------------------------------------
+load_data.py          53     10    81%   40-42, 49-50, 73-75, 103-104
+quality_check.py      27      6    78%   53-55, 59-61
+write_data.py         28      6    79%   28-30, 50-52
+------------------------------------------------
+TOTAL                108     22    80%
+
+=========================================== 9 passed, 2 warnings in 394.46s (0:06:34) ===========================================
+
+
+(spark_ikart_env) akshay@LAPTOP-OTII9OR8:~/project_etl$ pytest --cov=load_data --cov=write_data --cov=quality_check --cov-report=term-missing
+=================================================== test session starts ===================================================
+platform linux -- Python 3.12.3, pytest-8.3.5, pluggy-1.5.0
+rootdir: /home/akshay/project_etl
+plugins: anyio-4.9.0, cov-6.0.0
+collected 15 items                                                                                                        
+
+etl_test.py ...............                                                                                           [100%]
+
+==================================================== warnings summary =====================================================
+../spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:1635
+  /home/akshay/spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:1635: ChangedInMarshmallow4Warning: `Number` field should not be instantiated. Use `Integer`, `Float`, or `Decimal` instead.
+    config_version = fields.Number(
+
+../spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:2687
+  /home/akshay/spark_ikart_env/lib/python3.12/site-packages/great_expectations/data_context/types/base.py:2687: ChangedInMarshmallow4Warning: `Number` field should not be instantiated. Use `Integer`, `Float`, or `Decimal` instead.
+    config_version = fields.Number(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform linux, python 3.12.3-final-0 -----------
+Name               Stmts   Miss  Cover   Missing
+------------------------------------------------
+load_data.py          50      3    94%   57-59
+quality_check.py      28      3    89%   59-61
+write_data.py         28      6    79%   28-30, 50-52
+------------------------------------------------
+TOTAL                106     12    88%
+
+
