@@ -1,12 +1,12 @@
-"""
-Creates spark session and reads the data
-"""
-
+'''
+Creates a spark session and reads the spark session takes input from the Json file
+'''
+import os
 import logging
 from pyspark.sql import SparkSession
 
-
 # Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def create_spark_session():
@@ -35,29 +35,35 @@ def create_spark_session():
         logger.exception("Failed to create Spark session: %s", e)
         raise
 
-def read_parquet_data(spark: SparkSession, input_path: str):
+def read_parquet_data(spark: SparkSession, config: dict):
     """
     Reads Parquet files from the specified input path using a given Spark session.
 
     Parameters:
         spark (SparkSession): The active Spark session.
-        input_path (str): The directory or file pattern for the Parquet files.
+        config (dict): The configuration dictionary.
 
     Returns:
-        DataFrame: A Spark DataFrame containing the taxi trip data.
+        DataFrame: A Spark DataFrame containing the data.
 
     Raises:
         Exception: If there is an error reading the Parquet files.
     """
     try:
-        logger.info("Reading Parquet data from '%s'.", input_path)
-        df = spark.read.parquet(input_path)
-        logger.info("Successfully read parquet data from '%s'.", input_path)
+        file_path = os.path.join(config["source"]["file_path"], config["source"]["file_name"])
+        logger.info("Reading Parquet data from '%s'.", file_path)
+        df = spark.read.parquet(file_path)
+
+        # Apply column selection if specified
+        if config["source"]["select_columns"]:
+            selected_cols = config["source"]["select_columns"].split(",")
+            df = df.select(*selected_cols)
+
+        logger.info("Successfully read parquet data from '%s'.", file_path)
         row_count = df.count()
         logger.info("Total number of rows in the dataset: %d", row_count)
-        logger.info("Showing first 5 rows of the dataset:")
         df.show(5)
         return df
     except Exception as e:
-        logger.exception("Failed to read parquet data from '%s': %s", input_path, e)
+        logger.exception("Failed to read parquet data from '%s': %s", file_path, str(e))
         raise
