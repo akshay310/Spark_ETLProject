@@ -67,6 +67,6 @@ def write_to_mssql(df: DataFrame, db_config):
         logger.info("Successfully written %d records to %s", df.count(), db_config["table"])
 
     except Exception as e:
-        logger.exception("Failed to write into MSSQL: %s", e)
+        logger.exception("Failed to write into MSSQL: %s", str(e))
         raise
    
