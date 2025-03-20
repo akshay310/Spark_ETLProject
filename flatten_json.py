@@ -23,8 +23,8 @@ Dependencies:
 """
 import re
 import logging
-from pyspark.sql import DataFrame
 from typing import Dict
+from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, explode_outer
 
 # Configure logging
@@ -55,7 +55,7 @@ def update_column_names(df: DataFrame, index: int) -> DataFrame:
     df_temp = df_temp.transform(lambda df_x: rename_dataframe_cols(df_x, new_cols))
     return df_temp
 
-def flatten_json_df(df_arg: DataFrame, index: int = 1) -> DataFrame:
+def flatten_json_df(df_arg: DataFrame, index: int = 1):
     """
     Recursively flattens nested JSON structures within a Spark DataFrame.
 

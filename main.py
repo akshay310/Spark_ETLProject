@@ -2,24 +2,16 @@ from json_read import read_json_data, start_spark
 from flatten_json import flatten_json_df, clean_column_names
 from data_quality_check import validate_data_quality
 from load_to_mysql import write_to_mysql
-#from read_data_requirements import get_file
+from read_config import get_input_file, get_bad_file, get_checks
+from write_bad_records import write_parquet
 
-json_file = "city_inspections.json"
-#data_req_file = ""
-connector_path = "/home/reyona/pyproj/pyspark_proj_env/mysql-connector-j-9.2.0.jar"
-spark = start_spark(connector_path,"DQ")
-input_json_df = read_json_data(spark,json_file)
+config_file = "config.json"
+spark = start_spark("DQ")
+input_json_df = read_json_data(spark,get_input_file(config_file))
 flattened_df = flatten_json_df(input_json_df)
 cleaned_flattened_df = clean_column_names(flattened_df)
-# Check for non-null values in multiple columns
-required_columns = ["business_name", "certificate_number", "id", "sector", "address_city", "address_street"]
-allowed_values = {"result": ["Pass", "Fail", "No Violation Issued", "Violation Issued"]}
-required_datatypes = {"address_zip" : "IntegerType"}
-unique_values = ["id", "certificate_number","id_oid"]
-good_df, bad_df = validate_data_quality(cleaned_flattened_df, required_columns, allowed_values, required_datatypes, unique_values)
-bad_df.write.format("parquet").mode("overwrite").save("city_inspections_json_bad_records.parquet")
-url_db="jdbc:mysql://localhost:3306/city"
+checks= get_checks(config_file)
+good_df, bad_df = validate_data_quality(cleaned_flattened_df, checks)
+write_parquet(bad_df, get_bad_file(config_file))
 db_table = "city_inspections"
-user = "root"
-password= ""
-write_to_mysql(good_df,url_db,db_table,user,password)
+write_to_mysql(good_df,db_table)

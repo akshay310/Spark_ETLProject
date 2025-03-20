@@ -23,18 +23,7 @@ import logging
 from great_expectations.dataset import SparkDFDataset
 from pyspark.sql.functions import col
 
-def get_date_columns(df):
-    """Returns a list of date column names."""
-    date_cols = []
-    fields = df.schema.fields
-    for field in fields:
-        column_name = field.name
-        if "date" in column_name:
-            date_cols.append(column_name)
-    return date_cols
-
-def validate_data_quality(spark_df, required_columns, \
-                          allowed_values, required_datatypes, unique_values):
+def validate_data_quality(spark_df, checks):
     """
     Validates data quality using Great Expectations, ensuring data consistency,
     uniqueness, and type correctness.
@@ -49,16 +38,17 @@ def validate_data_quality(spark_df, required_columns, \
              - bad_records: DataFrame with invalid records.
     :raises Exception: If an error occurs during validation.
     """
+    required_columns = checks["column_values_to_not_be_null"]
+    allowed_values = checks["column_values_to_be_in_set"]
+    required_datatypes = checks["column_values_to_be_of_type"]
+    unique_values = checks["column_values_to_be_unique"]
+    #regex_values = checks["column_values_to_match_regex"]
     try:
         logging.info("Starting data quality validation")
         df_ge = SparkDFDataset(spark_df)
         expectations = []
         for column in required_columns:
             expectations.append(df_ge.expect_column_values_to_not_be_null(column))
-        date_columns = get_date_columns(spark_df)
-        for date_col in date_columns:
-            expectations.append(df_ge.expect_column_values_to_match_regex(date_col,
-                                r"\w{3} \d{1,2} \d{4}"))
         for column, values in allowed_values.items():
             expectations.append(df_ge.expect_column_values_to_be_in_set(column, values))
         for column, data_type in required_datatypes.items():

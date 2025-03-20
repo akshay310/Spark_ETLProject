@@ -1,0 +1,146 @@
+ {
+  "login_id": "",
+  "id": 1092,
+  "task": {
+    "source": {
+      "source_type": "csv_read",
+      "header": "Y",
+      "schema": "",
+      "encoding": "",
+      "delimiter": ",",
+      "file_name": "city_inspections.json",
+      "file_path": "",
+      "file_type": "csv",
+      "chunk_size": 10000,
+      "alias_columns": "",
+      "parameter_type": "Local Server",
+      "select_columns": "",
+      "connection_name": "localserver_ikart_connection"
+    },
+    "target": {
+      "target_type": "csv_write",
+      "file_type": "csv",
+      "parameter_type": "Local Server",
+      "connection_name": "localserver_ikart_connection",
+      "generate_bad_record": "yes",
+      "bad_record_file_name": "city_inspections_bad_filetest.parquet",
+      "bad_record_file_path": "",
+      "good_record_file_name": "good_filetest.csv",
+      "good_record_file_path": "/home/puneeths/sample_data/"
+    },
+    "data_quality": [
+      {
+        "seq_no": "1",
+        "check": "column_values_to_be_in_set",
+        "parameters": {
+          "column": "result",
+          "value_set": "Pass,Fail,No Violation Issued,Violation Issued"
+        },
+        "active": "Y",
+        "threshold_bad_records": 100,
+        "type": "pre_check"
+      },
+{
+        "seq_no": "2",
+        "check": "column_values_to_be_unique",
+        "parameters": {
+        "column": "id"
+        },
+        "active": "Y",
+        "threshold_bad_records": 100,
+        "type": "pre_check"
+      },
+      {
+        "seq_no": "3",
+        "check": "column_values_to_not_be_null",
+        "parameters": {
+        "column": "business_name"
+        },
+        "active": "Y",
+        "threshold_bad_records": 100,
+        "type": "pre_check"
+      },
+      {
+        "seq_no": "4",
+        "check": "column_values_to_be_of_type",
+        "parameters": {
+        "column": "address_zip",
+        "type" : "IntegerType"
+        },
+        "active": "Y",
+        "threshold_bad_records": 100,
+        "type": "pre_check"
+      },
+      {
+        "seq_no": "5",
+        "check": "column_values_to_be_unique",
+        "parameters": {
+        "column": "certificate_number"
+        },
+        "active": "Y",
+        "threshold_bad_records": 100,
+        "type": "pre_check"
+      },
+      {
+        "seq_no": "6",
+        "check": "column_values_to_be_unique",
+        "parameters": {
+        "column": "id_oid"
+        },
+        "active": "Y",
+        "threshold_bad_records": 100,
+        "type": "pre_check"
+      },
+      {
+        "seq_no": "3",
+        "check": "column_values_to_not_be_null",
+        "parameters": {
+        "column": "certificate_number"
+        },
+        "active": "Y",
+        "threshold_bad_records": 100,
+        "type": "pre_check"
+      },
+      {
+        "seq_no": "3",
+        "check": "column_values_to_not_be_null",
+        "parameters": {
+        "column": "id"
+        },
+        "active": "Y",
+        "threshold_bad_records": 100,
+        "type": "pre_check"
+      },
+      {
+        "seq_no": "3",
+        "check": "column_values_to_not_be_null",
+        "parameters": {
+        "column": "sector"
+        },
+        "active": "Y",
+        "threshold_bad_records": 100,
+        "type": "pre_check"
+      },
+      {
+        "seq_no": "3",
+        "check": "column_values_to_not_be_null",
+        "parameters": {
+        "column": "address_city"
+        },
+        "active": "Y",
+        "threshold_bad_records": 100,
+        "type": "pre_check"
+      },
+      {
+        "seq_no": "3",
+        "check": "column_values_to_not_be_null",
+        "parameters": {
+        "column": "address_street"
+        },
+        "active": "Y",
+        "threshold_bad_records": 100,
+        "type": "pre_check"
+      }
+    ]
+  }
+}

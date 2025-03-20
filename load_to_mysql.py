@@ -14,18 +14,24 @@ Functions:
 """
 
 import logging
+import os
 from pyspark.sql import DataFrame
 
-def write_to_mysql(df: DataFrame, url, dbtable, user, password):
+MYSQL_URL = os.getenv("MYSQL_URL")
+MYSQL_USER = os.getenv("MYSQL_USER")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
+MYSQL_DRIVER = os.getenv("MYSQL_DRIVER")
+
+def write_to_mysql(df: DataFrame,dbtable):
     """Writes a PySpark DataFrame to a MySQL database with exception handling and logging."""
     try:
         logging.info("Starting data write to MySQL table: %s", dbtable)
         df.write.format("jdbc") \
-            .option("driver", "com.mysql.cj.jdbc.Driver") \
-            .option("url", url) \
+            .option("driver", MYSQL_DRIVER) \
+            .option("url", MYSQL_URL) \
             .option("dbtable", dbtable) \
-            .option("user", user) \
-            .option("password", password) \
+            .option("user", MYSQL_USER) \
+            .option("password", MYSQL_PASSWORD) \
             .save()
         logging.info("Data successfully written to MySQL")
     except Exception as e:

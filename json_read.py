@@ -16,14 +16,14 @@ from pyspark.sql import SparkSession
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def start_spark(connector_path,app_name="DQ"):
+def start_spark(app_name="DQ"):
     """
     Initializes and returns a Spark session.
     
     :param app_name: Name of the Spark application
     :return: SparkSession object
     """
-    
+    connector_path = "/home/reyona/pyproj/pyspark_proj_env/mysql-connector-j-9.2.0.jar"
     try:
         spark = (SparkSession.builder
             .appName(app_name)
