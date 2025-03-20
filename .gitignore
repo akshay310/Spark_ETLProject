@@ -7,3 +7,4 @@ sonar-scanner.zip
 .ruff_cache
 .*
 config.json
+DB.TXT
