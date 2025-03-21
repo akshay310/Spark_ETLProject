@@ -3,7 +3,6 @@ import logging
 import os
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
-from pyspark.sql.functions import col
 from unittest.mock import patch, MagicMock, mock_open
 import json
 from json_read import read_json_data, start_spark

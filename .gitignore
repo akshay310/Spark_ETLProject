@@ -9,3 +9,4 @@ read_web_data.py
 /.ruff_cache
 test_functions2.py
 .coverage
+config.json
