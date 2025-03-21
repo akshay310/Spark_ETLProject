@@ -246,7 +246,7 @@ def test_write_to_mssql_failure(mock_write, sample_df):
     with pytest.raises(Exception, match="Database connection error"):
         write_to_mssql(sample_df, DB_CONFIG)
 
-# ✅ Test loading a valid JSON config file
+# Test loading a valid JSON config file
 @patch("builtins.open", new_callable=mock_open, read_data='{"database": {"db_name": "testDB", "db_table": "testTable"}}')
 def test_load_config_valid(mock_file):
     """Test if load_config loads a valid JSON configuration file correctly."""
@@ -254,14 +254,14 @@ def test_load_config_valid(mock_file):
     assert config["database"]["db_name"] == "testDB"
     assert config["database"]["db_table"] == "testTable"
 
-# ✅ Test handling a missing config file
+# Test handling a missing config file
 @patch("builtins.open", side_effect=FileNotFoundError("File not found"))
 def test_load_config_missing(mock_file):
     """Test if load_config raises an error when the file is missing."""
     with pytest.raises(FileNotFoundError, match="File not found"):
         load_config("missing_config.json")
 
-# ✅ Test handling an invalid JSON file
+# Test handling an invalid JSON file
 @patch("builtins.open", new_callable=mock_open, read_data="{invalid_json}")
 def test_load_config_invalid_json(mock_file):
     """Test if load_config raises an error for invalid JSON format."""
@@ -269,7 +269,7 @@ def test_load_config_invalid_json(mock_file):
         with pytest.raises(json.JSONDecodeError):
             load_config("invalid_config.json")
 
-# ✅ Test handling a permission error when accessing the file
+# Test handling a permission error when accessing the file
 @patch("builtins.open", side_effect=PermissionError("Permission denied"))
 def test_load_config_permission_error(mock_file):
     """Test if load_config raises an error when file access is denied."""
