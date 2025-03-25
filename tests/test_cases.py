@@ -8,12 +8,11 @@ from unittest.mock import MagicMock, patch, mock_open
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from config_loader import load_config
-from load_parquet import create_spark_session, read_parquet_data
-from load_to_mssql import write_to_mssql
+from config_read import load_config
+from parquet_read import create_spark_session, read_parquet_data
+from mssql_write import write_to_mssql
 from quality_checks import quality_checks, apply_check
 
-# Import functions to test # Replace 'your_module' with the actual filename
 DB_CONFIG = {
     "database": {
         "db_name": "TestDB",
@@ -64,6 +63,8 @@ def test_read_parquet_data(mock_spark_read, spark):
     assert df.count() == 5  # Ensure row count matches expected value
 
     logger.info("read_parquet_data test passed.")
+
+
 def test_read_parquet_data_exception():
     """Test read_parquet_data function when an exception occurs during file reading."""
     
@@ -79,7 +80,7 @@ def test_read_parquet_data_exception():
     expected_file_path = os.path.join(mock_config["source"]["file_path"], mock_config["source"]["file_name"])
 
     with patch.object(mock_spark.read, "parquet", side_effect=Exception("File not found")), \
-         patch("load_parquet.logger") as mock_logger:
+         patch("parquet_read.logger") as mock_logger:
 
         # Ensure the function raises an exception when file reading fails
         with pytest.raises(Exception, match="File not found"):
@@ -90,6 +91,7 @@ def test_read_parquet_data_exception():
             "Failed to read parquet data from '%s': %s", expected_file_path, "File not found"
         )
         
+
 def test_apply_check():
     """Test apply_check function with different rule types."""
     mock_ge_df = MagicMock()
@@ -138,6 +140,8 @@ def test_apply_check_unsupported_check(caplog):
 
     # Assert warning message was logged
     assert "Unsupported check type: columns_to_be_null" in caplog.text
+
+    
 def test_apply_check_exception_handling(caplog):
     """Test apply_check function when an exception occurs."""
     mock_ge_df = MagicMock()

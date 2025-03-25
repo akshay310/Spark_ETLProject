@@ -2,10 +2,10 @@
 Combines the reading , segregating the records and writting
 '''
 import logging
-from config_loader import load_config  # Import config loader
-from load_parquet import create_spark_session, read_parquet_data
+from config_read import load_config  # Import config loader
+from parquet_read import create_spark_session, read_parquet_data
 from quality_checks import quality_checks
-from load_to_mssql import write_to_mssql
+from mssql_write import write_to_mssql
 
 logging.basicConfig(level=logging.INFO,
                      format="%(asctime)s - %(levelname)s - %(message)s",
@@ -19,8 +19,6 @@ def main():
     function creates a pipeline creates the sesssion reads the data segregates the data
     and writes the good records into mssql
     
-    Parameters:
-    file_path(string): takes the path of dataset in the command line
 
     '''
 

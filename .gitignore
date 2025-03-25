@@ -11,3 +11,4 @@ config.json
 etl_requirements.txt
 .pylintrc
 .coverage
+*.docx

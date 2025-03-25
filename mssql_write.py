@@ -36,12 +36,6 @@ def write_to_mssql(df: DataFrame, db_config):
                     )
 
 
-    #    logger.info(
-    #         "Writing data to MSSQL table: %s . %s",
-    #          db_config["database"]['database'],
-    #          db_config['database']["table"]
-    #          )
-
         # Writing the DataFrame to MSSQL using JDBC
         logger.info(
             "Writing data to MSSQL table: %s.%s",
