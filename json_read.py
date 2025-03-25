@@ -10,6 +10,7 @@ Functions:
     returns a SparkSession with a specified application name.
 - read_json_data(spark, file): Reads a JSON file into a Spark DataFrame with schema inference.
 """
+
 import logging
 from pyspark.sql import SparkSession
 

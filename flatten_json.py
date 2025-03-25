@@ -25,6 +25,7 @@ import re
 import logging
 from typing import Dict
 from pyspark.sql import DataFrame
+from pyspark.sql.types import ArrayType, StructType
 from pyspark.sql.functions import col, explode_outer
 
 # Configure logging
@@ -70,30 +71,33 @@ def flatten_json_df(df_arg: DataFrame, index: int = 1):
         fields = df.schema.fields
 
         for field in fields:
-            data_type = str(field.dataType)
+            data_type = field.dataType
             column_name = field.name
-            first_10_chars = data_type[0:10]
-            if first_10_chars == 'ArrayType(':
+
+            if isinstance(data_type, ArrayType):
                 df_temp = df.withColumn(column_name, explode_outer(col(column_name)))
                 return flatten_json_df(df_temp, index + 1)
-            elif first_10_chars == 'StructType':
+            
+            elif isinstance(data_type, StructType):
                 current_col = column_name
                 append_str = current_col
                 data_type_str = str(df.schema[current_col].dataType)
                 df_temp = df.withColumnRenamed(column_name, \
                             column_name + "#1") if column_name in data_type_str else df
+                
                 current_col = current_col + "#1" if column_name in data_type_str else current_col
                 df_before_expanding = df_temp.select(f"{current_col}.*")
                 newly_gen_cols = df_before_expanding.columns
                 begin_index = append_str.rfind('*')
                 end_index = len(append_str)
                 level = append_str[begin_index + 1: end_index]
+
                 next_level = int(level) + 1
                 custom_cols = dict((field, f"{append_str}->{field}*{next_level}")
                                    for field in newly_gen_cols)
-                df_temp2 = df_temp.select("*", f"{current_col}.*").drop(current_col)
-                df_temp3 = df_temp2.transform(lambda df_x: rename_dataframe_cols(df_x, custom_cols))
-                return flatten_json_df(df_temp3, index + 1)
+                df_flattened = df_temp.select("*", f"{current_col}.*").drop(current_col)
+                df_renamed = df_flattened.transform(lambda df_x: rename_dataframe_cols(df_x, custom_cols))
+                return flatten_json_df(df_renamed, index + 1)
         logging.info("Flattening complete.")
         return df
     except Exception as e:

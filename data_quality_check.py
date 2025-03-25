@@ -7,7 +7,6 @@ Great Expectations. It ensures data consistency, uniqueness, and correctness bas
 predefined validation rules.  
 
 ### Functions:
-- `get_date_columns(df)`: Identifies and returns a list of date-related column names in a DataFrame.  
 - `validate_data_quality(spark_df, required_columns, allowed_values,
                     required_datatypes, unique_values)`:  
   Performs data quality validation by checking for null values, allowed value sets,
@@ -15,7 +14,6 @@ predefined validation rules.
 
 ### Features:
 - Uses **Great Expectations** to define and apply validation rules.  
-- Identifies columns containing dates for additional validation.  
 - Separates valid and invalid records into **good_records** and **bad_records** DataFrames.  
 - Logs validation progress and errors for easier debugging.
 """

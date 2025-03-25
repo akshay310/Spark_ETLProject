@@ -8,7 +8,7 @@ extract file paths, and retrieve data quality checks with exception handling.
 import json
 import logging
 
-def load_json_req(data_req_file):
+def load_json_config(data_req_file):
     """Loads a JSON file and returns the parsed data.
     
     Args:
@@ -31,11 +31,11 @@ def load_json_req(data_req_file):
         logging.error("Error decoding JSON file: %s", data_req_file)
         raise e
 
-def get_input_file(data_req_file):
+def get_input_file(config_file):
     """Extracts the input file path from the JSON configuration.
     
     Args:
-        data_req_file (str): Path to the JSON file.
+        config_file (str): Path to the JSON file.
     
     Returns:
         str: Input file path.
@@ -44,7 +44,7 @@ def get_input_file(data_req_file):
         KeyError: If the required keys are missing.
     """
     try:
-        data = load_json_req(data_req_file)
+        data = load_json_config(config_file)
         return data["task"]["source"]["file_path"] + data["task"]["source"]["file_name"]
     except KeyError as e:
         logging.error("Missing key in JSON: %s", str(e))
@@ -63,7 +63,7 @@ def get_bad_file(data_req_file):
         KeyError: If the required keys are missing.
     """
     try:
-        data = load_json_req(data_req_file)
+        data = load_json_config(data_req_file)
         return data["task"]["target"]["bad_record_file_path"] + \
                 data["task"]["target"]["bad_record_file_name"]
     except KeyError as e:
@@ -83,7 +83,7 @@ def get_checks(data_req_file):
         KeyError: If the required keys are missing.
     """
     try:
-        data = load_json_req(data_req_file)
+        data = load_json_config(data_req_file)
         checks = {}
         for i in data["task"]["data_quality"]:
             check_type = i["check"].split("_")[-1]

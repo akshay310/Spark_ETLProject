@@ -27,7 +27,7 @@ if __name__ == "__main__":
     # Validate data quality, separating good and bad records
     good_df, bad_df = validate_data_quality(cleaned_flattened_df, checks)
     
-    # Write bad records to a Parquet file for further analysis
+    # Write bad records to a Parquet file
     write_parquet(bad_df, get_bad_file(config_file))
     
     # Define the target MySQL table
