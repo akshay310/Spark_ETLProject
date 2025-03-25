@@ -56,3 +56,8 @@ def save_to_oracle(df: DataFrame, table_name: str) -> None:
         logging.error("ConnectionError: Could not connect to Oracle DB: %s", str(e))
     except Exception as e:
         logging.error("Unexpected error while saving to Oracle: %s", str(e))
+    except py4j.protocol.Py4JJavaError as e:
+        logging.error("PySpark Error: %s", str(e))
+    except Exception as e:
+        logging.error("Unexpected Error: %s", str(e))
+

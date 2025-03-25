@@ -13,7 +13,7 @@ from pyspark.sql.functions import col
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(filename='etl.log',level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 def load_config():
     """Loads and validates configuration."""

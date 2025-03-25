@@ -13,6 +13,9 @@ def save_data(good_records_df: DataFrame, bad_records_df: DataFrame, bad_records
         bad_records_df (DataFrame): Invalid records DataFrame.
         bad_records_path (str): Path to save bad records.
     """ 
+    import os
+    if not os.path.exists(bad_records_path):
+        os.makedirs(bad_records_path)
     bad_records_count = bad_records_df.count()
     good_records_count = good_records_df.count()
 
