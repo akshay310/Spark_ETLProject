@@ -10,3 +10,5 @@ read_web_data.py
 test_functions2.py
 .coverage
 config.json
+__pycache__/
+*.pyc

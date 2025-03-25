@@ -8,7 +8,7 @@ import json
 from json_read import read_json_data, start_spark
 from flatten_json import flatten_json_df, clean_column_names, rename_dataframe_cols, update_column_names
 from data_quality_check import validate_data_quality
-from load_to_mysql import write_to_mysql
+from mysql_write import write_to_mysql
 from read_config import load_json_req, get_input_file, get_bad_file, get_checks
 from write_bad_records import write_parquet
 
