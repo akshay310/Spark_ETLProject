@@ -1,6 +1,15 @@
 """
 Configuration file for PostgreSQL connection.
+
+This module:
+- Loads database connection parameters (URL, user, password) from `config.json`.
+- Validates required fields and initializes `DB_URL` and `DB_PROPERTIES`.
+- Handles common errors such as missing file, JSON parsing, or missing config values.
+
+Typical usage:
+    from db_cred import DB_URL, DB_PROPERTIES
 """
+
 import sys
 import json
 import logging
@@ -8,9 +17,10 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# Load database configuration from config.json
+# Path to config file
 CONFIG_FILE = "config.json"
 
+# Load database configuration from config.json
 try:
     with open(CONFIG_FILE, "r", encoding="utf-8") as file:
         config = json.load(file)
@@ -35,10 +45,11 @@ if not all([DB_URL, DB_USER, DB_PASSWORD]):
     logging.error("Missing required database configuration in config.json.")
     sys.exit(1)
 
+# JDBC-compatible properties dictionary
 DB_PROPERTIES = {
     "user": DB_USER,
     "password": DB_PASSWORD,
     "driver": "org.postgresql.Driver"
 }
 
-logging.info("Successfully loaded database configuration from config.json.")
+logging.info("✅ Successfully loaded database configuration from config.json.")
