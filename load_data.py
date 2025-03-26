@@ -72,7 +72,8 @@ def load_data(file_path: str, config):
         spark = SparkSession.builder \
             .appName("ETL-Load-Data") \
             .config("spark.sql.shuffle.partitions", "200") \
-            .config("spark.executor.memory", "4g") \
+            .config("spark.driver.memory", "4g") \
+            .config("spark.executor.memory", "8g") \
             .config("spark.jars", "/opt/oracle/ojdbc11.jar") \
             .getOrCreate()
 
@@ -85,7 +86,7 @@ def load_data(file_path: str, config):
             .csv(file_path)
 
         logging.info(f"Dataframe schema: {df.printSchema()}")
-        logging.info(f"Showing sample records:\n{df.limit(5).show(truncate=False)}")
+        # logging.info(f"Showing sample records:\n{df.limit(5).show(truncate=False)}")
 
         return df
 

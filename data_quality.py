@@ -88,25 +88,29 @@ def validate_and_clean_data(df: DataFrame,config):
     for column, result in validation_results.items():
         logging.info("Validation on column '%s': %s", column, result["success"])
 
-    df = df.withColumn(
-        "is_valid",
-        when(
-            col("Id").isNotNull()
-            & col("Title").isNotNull()
-            & col("review/score").isNotNull()
-            & (col("Price") >= 0)
-            & col("review/time").rlike(r"\d+")
-            & col("review/helpfulness").rlike(r"\d+/\d+"),
-            True
-        ).otherwise(False)
-    )
+    failed_columns = [col for col, result in validation_results.items() if not result["success"]]
+    
+    if failed_columns:
+        bad_records_df = df.filter(
+            (col(failed_columns[0]).isNull()) | (col(failed_columns[0]) == "")
+        )
+        for col_name in failed_columns[1:]:
+            bad_records_df = bad_records_df.union(df.filter(
+                col(col_name).isNull() | (col(col_name) == "")
+            ))
+        good_records_df = df.subtract(bad_records_df)
+    else:
+        good_records_df = df
+        bad_records_df = df.limit(0)
+    
+    logging.info("Data quality validation completed successfully")
 
-    good_records_df = df.filter(col("is_valid")).drop("is_valid")
-    bad_records_df = df.filter(~col("is_valid")).drop("is_valid")
+
+    
     good_records_df = good_records_df.withColumn("Title", col("Title").substr(1, 255))
+    good_records_df = good_records_df.withColumn("review/time", col("review/time").substr(1, 255))
+    good_records_df = good_records_df.withColumn("review/score", col("review/score").substr(1, 255))
     good_count=good_records_df.count()
     bad_count=bad_records_df.count()
     logging.info("Valid records:%d,Invalid records:%d",good_count,bad_count)
-
-    
     return good_records_df, bad_records_df
