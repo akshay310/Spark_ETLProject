@@ -86,8 +86,8 @@ def flatten_json_df(df_arg: DataFrame, index: int = 1):
                 # Renames struct fields in case of duplicate names
                 df_temp = df.withColumnRenamed(column_name, \
                             column_name + "#1") if column_name in data_type_str else df
-
                 current_col = current_col + "#1" if column_name in data_type_str else current_col
+
                 df_before_expanding = df_temp.select(f"{current_col}.*")
                 # Gets the columns inside a struct fields
                 newly_gen_cols = df_before_expanding.columns
@@ -116,6 +116,6 @@ def clean_column_names(df: DataFrame) -> DataFrame:
         name = re.sub(r'_+', '_', name)
         name = name.strip('_')
         return name
-    new_columns = [clean(col) for col in df.columns]
+    cleaned_columns = [clean(col) for col in df.columns]
     logging.info("Column names cleaned.")
-    return df.toDF(*new_columns)
+    return df.toDF(*cleaned_columns)
