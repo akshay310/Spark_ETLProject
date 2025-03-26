@@ -18,8 +18,6 @@ def main():
     '''
     function creates a pipeline creates the sesssion reads the data segregates the data
     and writes the good records into mssql
-    
-
     '''
 
     spark_session = create_spark_session()
