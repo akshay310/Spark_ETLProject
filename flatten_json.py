@@ -75,6 +75,7 @@ def flatten_json_df(df_arg: DataFrame, index: int = 1):
             column_name = field.name
 
             if isinstance(data_type, ArrayType):
+                # Explodes arrays keeping null values
                 df_temp = df.withColumn(column_name, explode_outer(col(column_name)))
                 return flatten_json_df(df_temp, index + 1)
             
@@ -82,11 +83,13 @@ def flatten_json_df(df_arg: DataFrame, index: int = 1):
                 current_col = column_name
                 append_str = current_col
                 data_type_str = str(df.schema[current_col].dataType)
+                # Renames struct fields in case of duplicate names
                 df_temp = df.withColumnRenamed(column_name, \
                             column_name + "#1") if column_name in data_type_str else df
-                
+
                 current_col = current_col + "#1" if column_name in data_type_str else current_col
                 df_before_expanding = df_temp.select(f"{current_col}.*")
+                # Gets the columns inside a struct fields
                 newly_gen_cols = df_before_expanding.columns
                 begin_index = append_str.rfind('*')
                 end_index = len(append_str)
@@ -95,9 +98,9 @@ def flatten_json_df(df_arg: DataFrame, index: int = 1):
                 next_level = int(level) + 1
                 custom_cols = dict((field, f"{append_str}->{field}*{next_level}")
                                    for field in newly_gen_cols)
-                df_flattened = df_temp.select("*", f"{current_col}.*").drop(current_col)
-                df_renamed = df_flattened.transform(lambda df_x: rename_dataframe_cols(df_x, custom_cols))
-                return flatten_json_df(df_renamed, index + 1)
+                df_drop_struct = df_temp.select("*", f"{current_col}.*").drop(current_col)
+                df_flattened = df_drop_struct.transform(lambda df_x: rename_dataframe_cols(df_x, custom_cols))
+                return flatten_json_df(df_flattened, index + 1)
         logging.info("Flattening complete.")
         return df
     except Exception as e:
