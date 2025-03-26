@@ -1,4 +1,4 @@
-""""" 
+"""""
 Module to load CSV data into a PySpark DataFrame with automatic delimiter and encoding detection.
 """
 
@@ -17,9 +17,21 @@ with open("config.json", "r") as config_file:
 
 FILE_PATH = config["task"]["source"]["file_path"] + config["task"]["source"]["file_name"]
 
+
 def detect_encoding_and_delimiter(file_path, sample_size=10000):
     """
-    Detects the file encoding and delimiter.
+    Detects the file encoding and delimiter using chardet and csv.Sniffer.
+
+    Args:
+        file_path (str): Path to the CSV file.
+        sample_size (int): Number of bytes to sample for encoding detection.
+
+    Returns:
+        Tuple[str, str]: A tuple containing detected encoding and delimiter.
+
+    Raises:
+        UnicodeDecodeError: If encoding detection fails.
+        csv.Error: If delimiter detection fails.
     """
     with open(file_path, "rb") as file:
         raw_data = file.read(sample_size)
@@ -35,9 +47,19 @@ def detect_encoding_and_delimiter(file_path, sample_size=10000):
 
     return encoding, delimiter
 
+
 def get_spark_session(app_name="ETL-Load-Data"):
     """
-    Initializes and returns a Spark session.
+    Initializes and returns a SparkSession with custom configurations.
+
+    Args:
+        app_name (str, optional): Name of the Spark application. Defaults to "ETL-Load-Data".
+
+    Returns:
+        SparkSession: A configured SparkSession object.
+
+    Raises:
+        Exception: If SparkSession creation fails.
     """
     try:
         spark = (
@@ -58,9 +80,21 @@ def get_spark_session(app_name="ETL-Load-Data"):
         logging.error("Error creating Spark session: %s", str(error))
         raise
 
+
 def load_data(file_path):
     """
-    Loads a CSV file into a PySpark DataFrame with detected encoding and delimiter.
+    Loads a CSV file into a PySpark DataFrame using detected encoding and delimiter.
+
+    Args:
+        file_path (str): Absolute path to the input CSV file.
+
+    Returns:
+        Tuple[DataFrame, SparkSession]: A tuple containing the loaded DataFrame and SparkSession.
+
+    Raises:
+        FileNotFoundError: If the file doesn't exist.
+        ValueError: If the file is empty or not a CSV.
+        Exception: For any other errors during loading.
     """
     try:
         if not os.path.exists(file_path):
@@ -92,6 +126,7 @@ def load_data(file_path):
     except Exception as error:
         logging.error("Error loading data: %s", str(error))
         raise
+
 
 if __name__ == "__main__":
     DATA_DF, SPARK_SESSION = load_data(FILE_PATH)
