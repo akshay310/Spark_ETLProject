@@ -1,11 +1,4 @@
 """
-Module to load CSV data into a PySpark DataFrame.
-"""
-import logging
-import csv
-import chardet
-import json
-import os"""""
 Module to load CSV data into a PySpark DataFrame with automatic delimiter and encoding detection.
 """
 
