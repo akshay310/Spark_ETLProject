@@ -1,1 +1,61 @@
 
+{
+    "database": {
+      "db_url": "jdbc:postgresql://localhost:5432/records",
+      "db_user": "postgres",
+      "db_password": "password",
+      "postgres_table_name": "public.iowa_liquor_sales"
+    },
+    "task": {
+      "source": {
+        "file_name": "Iowa_Liquor_Sales.csv.csv",
+        "file_path": "/home/akshay/",
+        "file_type": "csv",
+        "header": "True",
+        "delimiter": ",",
+        "encoding": "ascii",
+        "chunk_size": 10000
+      },
+      "target": {
+        "target_type": "postgres_write",
+        "file_type": "parquet",
+        "connection_name": "postgres_connection",
+        "parquet_output_path": "/home/akshay/bad_records.parquet"
+      },
+      "data_quality": {
+        "expectations": {
+          "check_store_location": {
+            "sql_condition": "store_location IS NOT NULL",
+            "great_expectations": "expect_column_values_to_not_be_null",
+            "column": "store_location"
+          },
+          "check_unique_invoice": {
+            "sql_condition": "invoice_and_item_number IS NOT NULL",
+            "great_expectations": "expect_column_values_to_be_unique",
+            "column": "invoice_and_item_number"
+          },
+          "check_date_format": {
+            "sql_condition": "date RLIKE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'",
+            "great_expectations": "expect_column_values_to_match_regex",
+            "column": "date",
+            "regex": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "check_sale_dollars": {
+            "sql_condition": "sale_dollars >= 0",
+            "great_expectations": "expect_column_values_to_be_between",
+            "column": "sale_dollars",
+            "min": 0,
+            "max": null
+          },
+          "check_bottles_sold": {
+            "sql_condition": "bottles_sold >= 1",
+            "great_expectations": "expect_column_values_to_be_between",
+            "column": "bottles_sold",
+            "min": 1,
+            "max": null
+          }
+        }
+      }
+    }
+  }
+  
