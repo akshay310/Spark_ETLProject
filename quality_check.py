@@ -1,6 +1,13 @@
 """
 Module to perform data quality checks using Great Expectations.
+
+This module:
+- Loads expectations from config.json.
+- Validates a given PySpark DataFrame using Great Expectations.
+- Returns separate DataFrames for good and bad records.
 """
+
+import json
 import logging
 import great_expectations as ge
 from pyspark.sql import DataFrame
@@ -9,47 +16,66 @@ from load_data import load_data
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+# Load config.json
+with open("config.json", "r", encoding='UTF-8') as config_file:
+    config = json.load(config_file)
+
+
 def validate_data(df: DataFrame):
     """
-    Performs data quality checks and returns separate DataFrames for good and bad records.
+    Performs data quality checks based on expectations defined in config.json.
 
-    :param df: Input PySpark DataFrame.
-    :return: Individual DataFrames: good_records_df and bad_records_df.
+    The function uses Great Expectations to validate each expectation against the given DataFrame,
+    and classifies records into 'good' and 'bad' based on failed expectations.
+
+    Args:
+        df (DataFrame): Input PySpark DataFrame to be validated.
+
+    Returns:
+        Tuple[DataFrame, DataFrame | None]: 
+            - good_records_df: DataFrame with all records that passed validation.
+            - bad_records_df: DataFrame with records that failed any validation (None if all passed).
+
+    Raises:
+        Exception: If data validation fails or config is malformed.
     """
     try:
         df_ge = ge.dataset.SparkDFDataset(df)
-
-        # Defining expectations
-        expectations = {
-            "check_store_location": ("store_location IS NOT NULL", 
-            df_ge.expect_column_values_to_not_be_null("store_location")),
-            "check_unique_invoice": ("invoice_and_item_number IS NOT NULL", 
-            df_ge.expect_column_values_to_be_unique("invoice_and_item_number")),
-            "check_date_format": ("date RLIKE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'", 
-            df_ge.expect_column_values_to_match_regex("date", r"^\d{4}-\d{2}-\d{2}$")),
-            "check_sale_dollars": ("sale_dollars >= 0", 
-            df_ge.expect_column_values_to_be_between("sale_dollars", 0, None)),
-            "check_bottles_sold": ("bottles_sold >= 1", 
-            df_ge.expect_column_values_to_be_between("bottles_sold", 1, None)),
-        }
-
+        expectations_config = config["task"]["data_quality"]["expectations"]
         failed_conditions = []
 
-        # Logging each expectation result
-        for check_name, (condition, result) in expectations.items():
+        for check_name, check_details in expectations_config.items():
+            column = check_details["column"]
+            expectation_type = check_details["great_expectations"]
+
+            if expectation_type == "expect_column_values_to_not_be_null":
+                result = df_ge.expect_column_values_to_not_be_null(column)
+            elif expectation_type == "expect_column_values_to_be_unique":
+                result = df_ge.expect_column_values_to_be_unique(column)
+            elif expectation_type == "expect_column_values_to_match_regex":
+                result = df_ge.expect_column_values_to_match_regex(column, check_details["regex"])
+            elif expectation_type == "expect_column_values_to_be_between":
+                result = df_ge.expect_column_values_to_be_between(
+                    column,
+                    check_details.get("min"),
+                    check_details.get("max")
+                )
+            else:
+                logging.warning("Unknown expectation type: %s", expectation_type)
+                continue
+
             if result["success"]:
                 logging.info("%s check PASSED.", check_name)
             else:
                 logging.warning("%s check FAILED.", check_name)
-                failed_conditions.append(condition)
+                failed_conditions.append(check_details["sql_condition"])
 
         # Separate good and bad records
         if failed_conditions:
             filter_condition = " OR ".join(f"NOT ({condition})" for condition in failed_conditions)
             bad_records_df = df.filter(filter_condition)
             good_records_df = df.subtract(bad_records_df)
-            logging.info("Bad records found. Good: %s | Bad: %s",
-             good_records_df.count(), bad_records_df.count())
+            logging.info("Bad records found. Good: %s | Bad: %s", good_records_df.count(), bad_records_df.count())
         else:
             good_records_df = df
             bad_records_df = None
@@ -61,21 +87,15 @@ def validate_data(df: DataFrame):
         logging.error("Data validation failed: %s", str(error))
         raise
 
+
 if __name__ == "__main__":
-    FILE_PATH = "/home/akshay/Iowa_Liquor_Sales.csv"
+    file_path = config["task"]["source"]["file_path"] + config["task"]["source"]["file_name"]
+    data_df, spark_session = load_data(file_path)
+    good_records_df, bad_records_df = validate_data(data_df)
 
-    # Correctly unpack the DataFrame and SparkSession
-    DATA_DF, SPARK_SESSION = load_data(FILE_PATH)
-
-    # Run validation
-    GOOD_RECORDS_DF, BAD_RECORDS_DF = validate_data(DATA_DF)
-
-    # Show sample records
-    GOOD_RECORDS_DF.show(5)
-    if BAD_RECORDS_DF:
-        BAD_RECORDS_DF.show(5)
-
-        # Save bad records to a single Parquet file
-        BAD_RECORDS_DF.write.mode("overwrite").parquet("/home/akshay/bad_records.parquet")
+    good_records_df.show(5)
+    if bad_records_df:
+        bad_records_df.show(5)
+        bad_records_df.write.mode("overwrite").parquet("/home/akshay/bad_records.parquet")
         logging.info("Bad records successfully written to Parquet.")
-        logging.info("Good records are ready to be pushed to PostgreSQL database")
+        logging.info("Good records are ready to be pushed to PostgreSQL database.")
