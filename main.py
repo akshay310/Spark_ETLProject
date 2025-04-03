@@ -60,12 +60,10 @@ def main(config):
     # Validate & Clean Data
     logger.info("Validating and cleaning data...")
     good_records_df, bad_records_df = validate_and_clean_data(df, config)
-    logger.warning(f"Found {bad_records_df.count()} bad records")
-    logger.info(f"{good_records_df.count()} valid records found to load into oracle database:{table_name}")
     # # Save Bad Records
-    # if bad_records_df and bad_records_df.count() > 0:
-    #     logger.warning(f"Found {bad_records_df.count()} bad records. Saving to {bad_records_path}...")
-    #     save_data(good_records_df, bad_records_df, bad_records_path)
+    if bad_records_df and bad_records_df.count() > 0:
+        logger.warning(f"Found {bad_records_df.count()} bad records. Saving to {bad_records_path}...")
+        save_data(good_records_df, bad_records_df, bad_records_path)
 
     # # Create Oracle table if not exists
     # logger.info(f"Ensuring table {table_name} exists in Oracle DB...")
